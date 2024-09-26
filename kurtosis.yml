@@ -1,0 +1,5 @@
+name: https://github.com/Lazychain/lazy_poc
+description: |-
+  # https://github.com/Lazychain/lazy_poc
+  Proof on Concept (Local and Testnet) Rollkit with Celestia as DA and Artela as EVM.
+replace: {}
