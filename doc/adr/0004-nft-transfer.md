@@ -13,7 +13,20 @@ In both cases we need to use Hyperlane bridge, but the NFT schemas are different
 
 ## Decision
 
-Our blockchain is going to work with [ERC721](https://eips.ethereum.org/EIPS/eip-721)
+Our blockchain is going to work with [EIP-1155](https://eips.ethereum.org/EIPS/eip-721)
+
+### Comparison between EIP-721 and EIP-1155
+
+- ERC-20 require deployment of separate contracts per token type.
+- ERC-721 standard’s token ID is a single non-fungible index and the group of these non-fungibles is deployed as a single contract with settings for the entire collection.
+- ERC-1155 Multi Token Standard allows for each token ID to represent a new configurable token type, which may have its own metadata, supply and other attributes.
+
+|       Feature        |            EIP-721            |          EIP-1155          |
+|:-------------------: |:----------------------------: |:-------------------------: |
+| Token type           | Non-fungible (one-of-a-kind)  | Fungible and non-fungible  |
+| Ownership            | Single ownership              | Multiple owners possible   |
+| Transfers            | One token at a time           | **Batch transfers supported**  |
+| Contract complexity  | Simpler                       | More complex               |
 
 ### NFT Transfer from StarGaze
 
@@ -215,4 +228,4 @@ sequenceDiagram
 
 ## Consequences
 
-We will adopt ERC1155 as nft specs.
+We will adopt [EIP1155](https://eips.ethereum.org/EIPS/eip-1155) as nft specs.

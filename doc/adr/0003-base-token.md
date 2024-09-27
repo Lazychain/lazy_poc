@@ -15,7 +15,7 @@ We need to pay Gas Fee for using the Data Availability layer (Celestia). For the
 We are going to use [Hyperlane bridge](https://docs.hyperlane.xyz/docs/intro) to transfer TIA from Celestia to our new blockchain.
 
 Hyperlane uses **IBC** to transfer **TIA** (ICS Native token) into a Hyperlane **Voucher TIA** ([ICS-20](https://github.com/cosmos/ibc/blob/main/spec/app/ics-020-fungible-token-transfer/README.md)).
-Later we can bridge (lock hyperlane voucher TIA) the TIA tokens into this new chain (mint [eip-1155](https://eips.ethereum.org/EIPS/eip-1155))
+Later we can bridge (lock hyperlane voucher TIA) the TIA tokens into this new chain (mint [EIP-20](https://eips.ethereum.org/EIPS/eip-20))
 
 ### Gas Bridge (Celestia TIA - Lazy TIA)
 
@@ -33,7 +33,7 @@ flowchart TB
             DC_FE_UI["Celestia TIA <-> Lazy TIA"]
         end
         subgraph DC_SC["Smart Contracts"]
-            DC_ERC1155["Lazy Native TIA"]
+            DC_ERC20["Lazy Native TIA"]
             subgraph DC_HL["Hyperlane"]
                 DC_MINT["Collateral - Mint"]
                 DC_MAIL["Mail"]
@@ -79,7 +79,7 @@ flowchart TB
     HL_A --> HL_RY
     HL_RY --> HL_B
     HL_B -- 5- Handle --> DC_MAIL
-    DC_MAIL -- 6- Receive --> DC_ERC1155
+    DC_MAIL -- 6- Receive --> DC_ERC20
 ```
 
 ```mermaid
@@ -92,7 +92,7 @@ sequenceDiagram
     participant HL_RY as Hyperlane Relayer
     participant HL_B as Hyperlane Agent B
     participant DC_MAIL as Hyperlane Mail
-    participant DC_ERC1155 as Lazy
+    participant DC_ERC20 as Lazy
 
     CL->>IBC_RL: Lock Native TIA (ICS20)
     IBC_RL->>ST_ICS20: Mint TIA Voucher (ICS20)
@@ -101,14 +101,12 @@ sequenceDiagram
     HL_A->>HL_RY: Forward
     HL_RY->>HL_B: Forward
     HL_B->>DC_MAIL: Handle
-    DC_MAIL->>DC_ERC1155: Mint TIA (ERC1155)
+    DC_MAIL->>DC_ERC20: Mint TIA (ERC20)
 ```
 
 ### Tasks
 
-- Lazy TIA **ERC1155** smart contract using Solidity
-  - [eip-1155](https://eips.ethereum.org/EIPS/eip-1155)
-  - [Forma 1155](https://github.com/forma-dev/sdk/tree/main/contracts)
+- Lazy TIA **ERC20** smart contract using Solidity
   - Receive ok / Refund is handle by Hyperlane bridge?
 - Define warp routes for Hyperlane Bridge
   - [deploy-warp-route](https://docs.hyperlane.xyz/docs/guides/deploy-warp-route})
@@ -120,3 +118,4 @@ sequenceDiagram
 ## Consequences
 
 This make Celestia the default DA layer.
+Out TIA token would be [ERC20](https://eips.ethereum.org/EIPS/eip-20)

@@ -42,7 +42,7 @@ flowchart TB
             DC_FE_UI["Celestia TIA <-> Lazy TIA"]
         end
         subgraph DC_SC["Smart Contracts"]
-            DC_ERC1155["Lazy Native TIA"]
+            DC_ERC20["Lazy Native TIA"]
             subgraph DC_HL["Hyperlane"]
                 DC_MINT["Collateral - Mint"]
                 DC_MAIL["Mail"]
@@ -57,10 +57,10 @@ flowchart TB
 
     %% IC intermediate chain
     subgraph IC["Stride Chain"]
-        IC_ICS20["Strider TIA"]
+        IC_ICS20["Voucher TIA"]
         IC_IBC_LC["IBC Light Client"]
         subgraph IC_HL["Hyperlane"]
-            IC_LOCK["Strider TIA Collateral - Lock"]
+            IC_LOCK["Voucher TIA Collateral - Lock"]
             IC_MAIL["Mail"]
             IC_GAS["TIA Gas Pay"]
 
@@ -88,7 +88,7 @@ flowchart TB
     HL_A --> HL_RY
     HL_RY --> HL_B
     HL_B -- 5- Handle --> DC_MAIL
-    DC_MAIL -- 6- Receive --> DC_ERC1155
+    DC_MAIL -- 6- Receive --> DC_ERC20
 ```
 
 > [!IMPORTANT]
