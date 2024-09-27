@@ -1,12 +1,10 @@
-# 5. Explorer
+# 6. Faucet
 
 Date: 2024-09-26
 
 ## Status
 
-Accepted
-
-
+Draft
 
 ## Context
 
