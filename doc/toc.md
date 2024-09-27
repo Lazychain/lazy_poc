@@ -15,4 +15,4 @@
 
 ## ADR
 
-[Table of adr](adr-toc.md)
+[Table of adr](./adr/adr-toc.md)
