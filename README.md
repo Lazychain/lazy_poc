@@ -2,6 +2,10 @@
 
 Proof on Concept (Local and Testnet using [kurtosis](https://docs.kurtosis.com/)) [Rollkit](https://rollkit.dev/learn/intro) with [Celestia](https://docs.celestia.org/) as DA and [Artela](https://docs.artela.network/develop) as EVM++.
 
+## Links
+
+- [Contents](./doc/toc.md)
+
 ## Architecture high level
 
 ```mermaid
@@ -33,7 +37,3 @@ flowchart LR
     Bridging --> Rollkit
     Rollkit --> DALayer
 ```
-
-## Contents
-
-![toc](./doc/toc.md)
