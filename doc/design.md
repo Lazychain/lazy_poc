@@ -397,3 +397,34 @@ flowchart LR
 - Create account into Range
 - Setup Telegram and Discord Alarms
 - Setup Service backend (RPC)
+
+#### Oracle Sidecar
+
+- [oracle-client](https://docs.skip.build/connect/developers/integration#oracle-client)
+
+```mermaid
+flowchart LR
+```
+
+> **Tasks**
+
+#### Faucet
+
+- [faucet-frontend](https://github.com/artela-network/faucet-frontend)
+
+```mermaid
+flowchart LR
+```
+
+#### Explorer
+
+- [block-explorer](https://github.com/artela-network/block-explorer)
+- [block-explorer-frontend](https://github.com/artela-network/block-explorer-frontend)
+
+```mermaid
+flowchart LR
+```
+
+#### Dashboard
+
+- [evm-dashboard](https://github.com/artela-network/evm-dashboard)

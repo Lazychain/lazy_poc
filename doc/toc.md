@@ -2,17 +2,17 @@
 
 ## Analysis, Design and Prototyping
 
-* [Analysis](./doc/analisys.md)
+* [Analysis](analisys.md)
   * User Stories
     * NFT Transfer
     * Staking / Unstaking
-* [Design](./doc/design.md)
+* [Design](design.md)
   * UML and Tasks
     * Gas Bridge
     * NFT bridge to Lazy Chain
     * Stake
-* [Prototyping](./doc//prototyping.md)
+* [Prototyping](prototyping.md)
 
 ## ADR
 
-[Table of adr](./adr/adr-toc.md)
+[Table of adr](adr/adr-toc.md)

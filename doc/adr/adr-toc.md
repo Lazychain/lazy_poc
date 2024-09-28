@@ -8,3 +8,4 @@
 * [6. Faucet](0006-faucet.md)
 * [7. Explorer](0007-explorer.md)
 * [8. Indexer](0008-indexer.md)
+* [9. EVM dashboard](0009-evm-dashboard.md)

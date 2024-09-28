@@ -20,6 +20,9 @@ Later we can bridge (lock hyperlane voucher TIA) the TIA tokens into this new ch
 ### Gas Bridge (Celestia TIA - Lazy TIA)
 
 ```mermaid
+---
+title: Gas Bridge (Celestia TIA - Lazy TIA)
+---
 flowchart TB
     %% OC origin chain
     subgraph OC["Celestia Chain"]
@@ -117,5 +120,5 @@ sequenceDiagram
 
 ## Consequences
 
-This make Celestia the default DA layer.
-Out TIA token would be [ERC20](https://eips.ethereum.org/EIPS/eip-20)
+- This make Celestia the default DA layer.
+- Out TIA token would be [ERC20](https://eips.ethereum.org/EIPS/eip-20).
