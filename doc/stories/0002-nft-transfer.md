@@ -1,6 +1,19 @@
 # 2. User NFT Transfer from Other blockchain Flow
 
-![nft-transfer](../diagram/0002-nft-transfer.mermaid)
+```mermaid
+---
+title: User NFT Transfer from Other blockchain Flow
+---
+flowchart LR
+    A(User Logged) --> B{NFT on List?}
+    B --> |Yes| X(Exit flow)
+    B --> |No| C(Select Blockchain)
+    C --> D(Select NFT to Transfer)
+    D --> E{Confirm?}
+    E --> |No| C
+    E --> |Yes| Y(Transfer, Pay Gas Fee)
+    Y --> X
+```
 
 > [!NOTE]  
 > Should we consider from lazy chain to send back to origin blockchains?

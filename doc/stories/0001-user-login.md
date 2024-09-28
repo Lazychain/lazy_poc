@@ -1,6 +1,14 @@
 # 1. User Login
 
-![user-login](./../diagram/0001-user-login.mermaid)
+```mermaid
+---
+title: User Login Flow
+---
+flowchart LR
+    A(Login) --> B{Valid Wallet?}
+    B --> |No| A
+    B --> |Yes| C(User Menu)
+```
 
 ```gherkin
 Feature: User Login
