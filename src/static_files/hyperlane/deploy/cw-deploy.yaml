@@ -1,0 +1,50 @@
+networks:
+  - id: "stargaze"
+    signer: "<mnemonic>"
+    hrp: "stars"
+    endpoint:
+      rpc: "http://localhost:21657"
+      rest: "http://localhost:1316"
+      grpc: "http://127.0.0.1:8090"
+    gas:
+      price: "0.025"
+      denom: "ustars"
+    domain: 7865 # stargaze -> ascii / decimal -> sum
+
+deploy:
+  ism:
+    type: "multisig"
+    owner: "<signer>"
+    validators:
+      1:
+        addrs:
+          - "<signer>"
+        threshold: 1
+  hooks:
+    default:
+      type: aggregate
+      owner: <signer>
+      hooks:
+        - type: merkle
+
+        - type: igp
+          owner: <signer>
+          configs:
+            1:
+              exchange_rate: 3000
+              gas_price: 5000
+          default_gas_usage: 30000
+
+    required:
+      type: aggregate
+      owner: <signer>
+      hooks:
+        - type: pausable
+          owner: <signer>
+          paused: false
+
+        - type: fee
+          owner: <signer>
+          fee:
+            denom: ustars
+            amount: 1

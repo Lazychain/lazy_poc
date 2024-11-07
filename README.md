@@ -4,7 +4,8 @@ Proof on Concept (Local and Testnet using [kurtosis](https://docs.kurtosis.com/)
 
 ## Links
 
-- [Contents](./doc/toc.md)
+- [Installation](./notes.md)
+- [Security](./security.md)
 
 ## Architecture high level
 

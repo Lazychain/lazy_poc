@@ -1,0 +1,58 @@
+version: "2"
+services:
+  relayer:
+    container_name: hpl-relayer
+    image: gcr.io/abacus-labs-dev/hyperlane-agent:main
+    user: root
+    environment:
+      - CONFIG_FILES=/etc/hyperlane/relayer.json
+    # command: "./relayer"
+    command: "-f /dev/null"
+    entrypoint: /usr/bin/tail
+    tty: true
+    ports:
+      - 9110:9090
+    volumes:
+      - ./src/static_files/hyperlane/config/relayer.json:/etc/hyperlane/relayer.json
+      - ./src/static_files/hyperlane/config/:/app/config/
+      - ./data/relayer:/etc/data
+      - ./data/validator:/etc/validator
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  validator-lazy:
+    container_name: hpl-validator-lazy
+    image: gcr.io/abacus-labs-dev/hyperlane-agent:main
+    user: root
+    environment:
+      - CONFIG_FILES=/etc/hyperlane/validator.lazy.json
+    command: "-f /dev/null"
+    entrypoint: /usr/bin/tail
+    tty: true
+    # command: "./validator"
+    ports:
+      - 9120:9090
+    volumes:
+      - ./src/static_files/hyperlane/config/validator.lazy.json:/etc/hyperlane/validator.lazy.json
+      - ./src/static_files/hyperlane/config/:/app/config/
+      - ./data/validator:/etc/validator
+      - ./data/validator/lazy:/etc/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  validator-stargaze:
+    container_name: hpl-validator-stargaze
+    image: gcr.io/abacus-labs-dev/hyperlane-agent:main
+    user: root
+    environment:
+      - CONFIG_FILES=/etc/hyperlane/validator.stargaze.json
+    command: "-f /dev/null"
+    entrypoint: /usr/bin/tail
+    tty: true
+    ports:
+      - 9121:9090
+    volumes:
+      - ./src/static_files/hyperlane/config/validator.stargaze.json:/etc/hyperlane/validator.stargaze.json
+      - ./src/static_files/hyperlane/config/:/app/config/
+      - ./data/validator:/etc/validator
+      - ./data/validator/stargaze:/etc/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

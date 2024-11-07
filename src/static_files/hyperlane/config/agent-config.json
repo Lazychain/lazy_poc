@@ -1,0 +1,82 @@
+{
+  "chains": {
+    "lazy": {
+      "name": "lazy",
+      "displayName": "Lazy",
+      "chainId": 11820,
+      "domainId": 11820,
+      "protocol": "ethereum",
+      "isTestnet": true,
+      "nativeToken": {
+        "decimals": 18,
+        "name": "art",
+        "symbol": "ART"
+      },
+      "rpcUrls": [
+        {
+          "http": "http://host.docker.internal:8545"
+        }
+      ],
+      "grpcUrls": [
+        {
+          "http": "http://host.docker.internal:9090"
+        }
+      ],
+      "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+
+      "domainRoutingIsmFactory": "0xD781Da4ed84470B706f8C6F12a13fa134c5B3d8D",
+      "interchainAccountIsm": "0x96B6441a375b0B13E86ba853A542a8D4f8bf0a20",
+      "interchainAccountRouter": "0xf7583BdeCf840e60657dd175dc6Ec172269eb8E7",
+      "mailbox": "0x067A44Af3D39893Bd783518F6b687d89aed8f9b7",
+      "merkleTreeHook": "0x18a2fD5E2791f8D7A87BE15F203ef4840691cd64",
+      "proxyAdmin": "0x41F84AB405621BA3560D3E76A2Ae8845568FaCB4",
+      "staticAggregationHookFactory": "0xfda383d60569eEC89dC7712D831232B271F59382",
+      "staticAggregationIsmFactory": "0x4Abd22724265745B1914816E44619357B5B4dE6B",
+      "staticMerkleRootMultisigIsmFactory": "0xfbb15A5773F84cdAe31e60cB0A487381d8D0dC14",
+      "staticMerkleRootWeightedMultisigIsmFactory": "0xB0E38fca16B0330e0106BA76433bbf371E716e01",
+      "staticMessageIdMultisigIsmFactory": "0x397925Dbfbc3c42f4b3eFa5E11e9B8e7c2B39CC7",
+      "staticMessageIdWeightedMultisigIsmFactory": "0x77c8D0636De274A1B84a7bBED3898e839485d3c4",
+      "testRecipient": "0xC14d13977d92ce0d6BeEFfDD6EDA179d3F225380",
+      "validatorAnnounce": "0x0715Ceaeeb3276516b3ae9061BE74F7cdc433780"
+    },
+    "stargaze": {
+      "name": "stargaze",
+      "displayName": "Stargaze",
+      "domainId": 7865,
+      "chainId": "stargaze",
+      "protocol": "cosmos",
+      "isTestnet": true,
+      "bech32Prefix": "stars",
+      "canonicalAsset": "ustars",
+      "nativeToken": {
+        "decimals": 6,
+        "denom": "stars",
+        "name": "Stargaze",
+        "symbol": "STAR"
+      },
+      "gasPrice": {
+        "amount": "1000",
+        "denom": "ustars"
+      },
+      "contractAddressBytes": 32,
+      "index": {
+        "from": 356,
+        "chunk": 5
+      },
+      "rpcUrls": [
+        {
+          "http": "http://host.docker.internal:21657"
+        }
+      ],
+      "grpcUrls": [
+        {
+          "http": "http://host.docker.internal:8090"
+        }
+      ],
+      "mailbox": "0x9e28beafa966b2407bffb0d48651e94972a56e69f3c0897d9e8facbdaeb98386",
+      "validatorAnnounce": "0xf04a313a7349b120c55c99788f12f712176bb3e5926d012d0ea72fa2bbb85051",
+      "interchainGasPaymaster": "0x82ee39d3213fe146084749501396d7bef2dedeed03555ab6e5e00568dcca0887",
+      "merkleTreeHook": "0xae64091007e6ea18992097aa4fb68ee83f249ce912a8434f7d7e268804d98ff3"
+    }
+  }
+}

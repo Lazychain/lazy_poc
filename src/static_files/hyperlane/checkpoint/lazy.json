@@ -1,0 +1,14 @@
+{
+  "value": {
+    "validator": "0x468402289eba56fc07abf413abf9f0a6da4ea15d",
+    "mailbox_address": "0x000000000000000000000000067a44af3d39893bd783518f6b687d89aed8f9b7",
+    "mailbox_domain": 11820,
+    "storage_location": "file:///etc/validator/lazy/checkpoint"
+  },
+  "signature": {
+    "r": "0xe5d390e8a9ae689276e714ca03853b3cfb16255791af712e8c070611de23db53",
+    "s": "0x6c48bfd5ab72be2ec6c53e45b71a564f66698e8a2ccc1e54bdd105b142ff8de1",
+    "v": 28
+  },
+  "serialized_signature": "0xe5d390e8a9ae689276e714ca03853b3cfb16255791af712e8c070611de23db536c48bfd5ab72be2ec6c53e45b71a564f66698e8a2ccc1e54bdd105b142ff8de11c"
+}

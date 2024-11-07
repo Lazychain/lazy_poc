@@ -1,1 +1,10 @@
 .vscode*
+.yarn*
+yarn.lock
+.pnp.cjs
+node_modules
+data
+mnemonic
+configs
+artifacts
+context

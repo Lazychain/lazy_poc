@@ -1,0 +1,35 @@
+{
+  "db": "/etc/data/db",
+  "relayChains": "stargaze,lazy",
+  "allowLocalCheckpointSyncers": "true",
+  "gasPaymentEnforcement": [{ "type": "none" }],
+  "whitelist": [
+    {
+      "origindomain": [7865],
+      "destinationDomain": [11820]
+    },
+    {
+      "origindomain": [11820],
+      "destinationDomain": [7865]
+    }
+  ],
+  "chains": {
+    "lazy": {
+      "signer": {
+        "type": "hexKey",
+        "key": "0x312bb42931060d953513de5c1f658f54592bd82650e5a7a6b770d5149c56d86e"
+      },
+      "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+      "grpcUrl": "http://host.docker.internal:9090"
+    },
+    "stargaze": {
+      "signer": {
+        "type": "cosmosKey",
+        "key": "0x5743ea6ae7afa91cddc656318dfa8bd7c73e4fb73e858fb7eceee171e10ceeff",
+        "prefix": "stars"
+      },
+      "interchainGasPaymaster": "0x82ee39d3213fe146084749501396d7bef2dedeed03555ab6e5e00568dcca0887",
+      "grpcUrl": "http://host.docker.internal:8090"
+    }
+  }
+}

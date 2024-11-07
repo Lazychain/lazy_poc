@@ -1,0 +1,21 @@
+{
+  "db": "/etc/data/db",
+  "checkpointSyncer": {
+    "type": "localStorage",
+    "path": "/etc/validator/stargaze/checkpoint"
+  },
+  "originChainName": "stargaze",
+  "validator": {
+    "type": "hexKey",
+    "key": "0x5743ea6ae7afa91cddc656318dfa8bd7c73e4fb73e858fb7eceee171e10ceeff"
+  },
+  "chains": {
+    "stargaze": {
+      "signer": {
+        "type": "cosmosKey",
+        "key": "0x5743ea6ae7afa91cddc656318dfa8bd7c73e4fb73e858fb7eceee171e10ceeff",
+        "prefix": "stars"
+      }
+    }
+  }
+}
