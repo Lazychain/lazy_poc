@@ -1,0 +1,17 @@
+blockExplorers:
+  - apiUrl: http://blockscout-local:8080
+    family: blockscout
+    name: blockscout
+    url: http://blockscout-local:8082
+chainId: 11820
+displayName: Lazy
+domainId: 11820
+isTestnet: true
+name: lazy
+nativeToken:
+  decimals: 18
+  name: art
+  symbol: ART
+protocol: ethereum
+rpcUrls:
+  - http: http://lazy-local:8545

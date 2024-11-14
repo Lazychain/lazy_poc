@@ -1,0 +1,82 @@
+{
+  "chains": {
+    "lazy": {
+      "name": "lazy",
+      "displayName": "Lazy",
+      "chainId": 11820,
+      "domainId": 11820,
+      "protocol": "ethereum",
+      "isTestnet": true,
+      "nativeToken": {
+        "decimals": 18,
+        "name": "art",
+        "symbol": "ART"
+      },
+      "rpcUrls": [
+        {
+          "http": "http://lazy-local:8545"
+        }
+      ],
+      "grpcUrls": [
+        {
+          "http": "http://lazy-local:9090"
+        }
+      ],
+      "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+
+      "domainRoutingIsmFactory": "{{.chains.lazy.domainRoutingIsmFactory}}",
+      "interchainAccountIsm": "{{.chains.lazy.interchainAccountIsm}}",
+      "interchainAccountRouter": "{{.chains.lazy.interchainAccountRouter}}",
+      "mailbox": "{{.chains.lazy.mailbox}}",
+      "merkleTreeHook": "{{.chains.lazy.merkleTreeHook}}",
+      "proxyAdmin": "{{.chains.lazy.proxyAdmin}}",
+      "staticAggregationHookFactory": "{{.chains.lazy.staticAggregationHookFactory}}",
+      "staticAggregationIsmFactory": "{{.chains.lazy.staticAggregationIsmFactory}}",
+      "staticMerkleRootMultisigIsmFactory": "{{.chains.lazy.staticMerkleRootMultisigIsmFactory}}",
+      "staticMerkleRootWeightedMultisigIsmFactory": "{{.chains.lazy.staticMerkleRootWeightedMultisigIsmFactory}}",
+      "staticMessageIdMultisigIsmFactory": "{{.chains.lazy.staticMessageIdMultisigIsmFactory}}",
+      "staticMessageIdWeightedMultisigIsmFactory": "{{.chains.lazy.staticMessageIdWeightedMultisigIsmFactory}}",
+      "testRecipient": "{{.chains.lazy.testRecipient}}",
+      "validatorAnnounce": "{{.chains.lazy.validatorAnnounce}}"
+    },
+    "stargaze": {
+      "name": "stargaze",
+      "displayName": "Stargaze",
+      "domainId": 7865,
+      "chainId": "stargaze",
+      "protocol": "cosmos",
+      "isTestnet": true,
+      "bech32Prefix": "stars",
+      "canonicalAsset": "ustars",
+      "nativeToken": {
+        "decimals": 6,
+        "denom": "stars",
+        "name": "Stargaze",
+        "symbol": "STAR"
+      },
+      "gasPrice": {
+        "amount": "1000",
+        "denom": "ustars"
+      },
+      "contractAddressBytes": 32,
+      "index": {
+        "from": 356,
+        "chunk": 5
+      },
+      "rpcUrls": [
+        {
+          "http": "http://stargaze-local:26657"
+        }
+      ],
+      "grpcUrls": [
+        {
+          "http": "http://stargaze-local:9090"
+        }
+      ],
+      "mailbox": "{{.chains.stargaze.mailbox}}",
+      "validatorAnnounce": "{{.chains.stargaze.validatorAnnounce}}",
+      "interchainGasPaymaster": "{{.chains.stargaze.interchainGasPaymaster}}",
+      "merkleTreeHook": "{{.chains.stargaze.merkleTreeHook}}"
+    }
+  }
+}

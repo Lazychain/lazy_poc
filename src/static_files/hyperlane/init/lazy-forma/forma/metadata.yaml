@@ -1,0 +1,15 @@
+chainId: 1337
+displayName: Forma
+domainId: 1337
+isTestnet: true
+name: forma
+nativeToken:
+  decimals: 18
+  name: TIA
+  symbol: TIA
+protocol: ethereum
+rpcUrls:
+  - http: http://forma-local:8545
+#transactionOverrides:
+#  maxFeePerGas: 18000000000000000000
+#  maxPriorityFeePerGas: 18000000000000000000

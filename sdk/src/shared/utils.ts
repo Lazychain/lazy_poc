@@ -1,63 +1,30 @@
 import { fromBech32 } from "@cosmjs/encoding";
 import type { IndexedTx } from "@cosmjs/stargate";
 import { StargateClient } from "@cosmjs/stargate";
-import { createHash } from "crypto";
-import * as fs from "fs";
-import * as readline from "readline";
 
-import { Client } from "./config";
+import {
+  Bip39,
+  EnglishMnemonic,
+  Secp256k1,
+  Slip10,
+  Slip10Curve,
+} from "@cosmjs/crypto";
+
+import type { HdPath } from "@cosmjs/crypto";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
-
-export function askQuestion(query: string) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) =>
-    rl.question(`${query} [Y/n] `, (ans) => {
-      rl.close();
-      resolve(ans.toLowerCase() == "y" || ans == "" ? true : false);
-    })
-  );
-}
 
 export const addPad = (v: string): string => {
   const s = v.startsWith("0x") ? v.slice(2) : v;
   return s.padStart(64, "0");
 };
 
-export const withLink = (text: string, url: string) =>
-  `${text} (\u200B${url}\u200B)`;
-
 export const extractByte32AddrFromBech32 = (addr: string): string => {
   const { data } = fromBech32(addr);
   const hexed = Buffer.from(data).toString("hex");
   return `0x${hexed.length === 64 ? hexed : addPad(hexed)}`;
 };
-
-export const downloadFile = async (url: string, dest: string) => {
-  return fetch(url)
-    .then((x) => x.arrayBuffer())
-    .then((x) => writeFile(dest, Buffer.from(x)));
-  // const response = await fetch(url);
-  // stream.Readable.fromWeb(response.body! as unknown as ReadableStream<Uint8Array>);
-  // const { body } = await fetch(url);
-  // const fileStream = fs.createWriteStream(dest, { flags: "wx" });
-  // await finished(Readable.fromWeb(body!).pipe(fileStream));
-};
-
-export const generateSha256 = (file: string): Promise<[string, string]> =>
-  new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(file);
-    const hash = createHash("sha256");
-
-    stream.on("error", (err) => reject(err));
-    stream.on("data", (chunk) => hash.update(chunk));
-    stream.on("end", () => resolve([file, hash.digest("hex")]));
-  });
 
 export const waitTx = async (
   txHash: string,
@@ -83,12 +50,17 @@ export const waitTx = async (
   return found;
 };
 
-export function orSigner<SignerType extends string | "<signer>" = "<signer>">(
-  client: Client,
-  v: SignerType
-): string {
-  return v === "<signer>" ? client.signer : v;
-}
-function writeFile(dest: string, arg1: Buffer): any {
-  throw new Error("Function not implemented.");
-}
+export const getKeyPair = async (
+  mnemonic: string,
+  hdPath: HdPath,
+  password?: string
+) => {
+  const { privkey } = Slip10.derivePath(
+    Slip10Curve.Secp256k1,
+    await Bip39.mnemonicToSeed(new EnglishMnemonic(mnemonic), password),
+    hdPath
+  );
+  const { pubkey } = await Secp256k1.makeKeypair(privkey);
+  const result = { privkey, pubkey: Secp256k1.compressPubkey(pubkey) };
+  return result;
+};

@@ -61,7 +61,7 @@ make optimize
 
 git clone
 
-`bun i -g @hyperlane-xyz/cli@5.6.1`
+`bun i -g @hyperlane-xyz/cli@6.0.0`
 
 ## Setting up kurtosis e2e poc
 

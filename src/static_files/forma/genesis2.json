@@ -1,8 +1,15 @@
 {
+  "alloc": {
+    "0x468402289EbA56fC07aBf413aBF9f0a6Da4Ea15D": {
+      "balance": "3000000000000000000000"
+    }
+  },
+  "coinbase": "0x0000000000000000000000000000000000000000",
   "config": {
-    "chainId": 1337,
+    "chainId": 984122,
     "homesteadBlock": 0,
     "eip150Block": 0,
+    "eip150Hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
     "eip155Block": 0,
     "eip158Block": 0,
     "byzantiumBlock": 0,
@@ -28,13 +35,16 @@
         "elasticityMultiplier": 2,
         "BaseFeeChangeDenominator": 8
       }
+    },
+    "forma": {
+      "hyperlaneMailbox": "0x0000000000000000000000000000000000000000"
     }
   },
-  "difficulty": "0",
-  "gasLimit": "30000000",
-  "alloc": {
-    "0x468402289EbA56fC07aBf413aBF9f0a6Da4Ea15D": {
-      "balance": "3000000000000000000000"
-    }
-  }
+  "nonce": "0x0",
+  "timestamp": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "gasLimit": "0x47e7c4",
+  "difficulty": "0x0",
+  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
 }

@@ -8,13 +8,6 @@
     "@types/js-yaml": "^4.0.9",
     "ts-yaml": "^1.0.0"
   },
-  "scripts": {
-    "cw-hpl": "bun run src/cw-hpl/index.ts",
-    "test01": "bun run src/test01/test01.ts",
-    "test02": "bun run src/test02/test02.ts",
-    "compile": "bun run src/compile/compile.ts",
-    "wallet": "bun run src/wallet/wallet.ts"
-  },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
@@ -23,18 +16,23 @@
     "@cosmjs/encoding": "^0.32.4",
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
+    "@ethereumjs/wallet": "^2.0.4",
     "@hyperlane-xyz/sdk": "^5.6.2",
     "@hyperlane-xyz/utils": "^5.6.2",
     "@types/decompress": "^4.2.7",
+    "cmd-ts": "^0.13.0",
     "color-loggers": "^0.3.2",
     "colors": "^1.4.0",
     "commander": "^12.1.0",
     "decompress": "^4.2.1",
     "ethers": "^5.7.2",
     "inversify": "^6.0.3",
+    "nopt": "^8.0.0",
     "reflect-metadata": "^0.2.2",
     "solc": "^0.8.28",
-    "web3": "^4.14.0"
+    "web3": "^4.14.0",
+    "yargs": "^17.7.2",
+    "zod": "^3.23.8"
   },
   "trustedDependencies": [
     "@arbitrum/nitro-contracts",

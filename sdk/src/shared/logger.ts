@@ -15,7 +15,11 @@ export class Logger {
     console.log("[INFO]".cyan, `[${this.name}]`, ...args);
 
   json = (...args: unknown[]) =>
-    console.log("[INFO]".yellow, `[${this.name}]`, ...args);
+    console.log(
+      "[INFO]".yellow,
+      `[${this.name}]`,
+      JSON.stringify(...args, null, 2)
+    );
 
   error = (...args: unknown[]) =>
     console.error("[ERROR]".red, `[${this.name}]`, ...args);

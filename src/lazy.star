@@ -38,7 +38,7 @@ def run(
     # load entry-point file as a volume file
     data = plan.upload_files(
         src=data_path,
-        name="lazy-entrypoint",
+        name="lazy_entrypoint",
     )
 
     service_config=ServiceConfig(

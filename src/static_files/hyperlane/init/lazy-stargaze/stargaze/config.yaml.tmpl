@@ -1,0 +1,47 @@
+networks:
+  - id: 'stargaze'
+    signer: '{{.MNEMONIC}}'
+    hrp: 'stars'
+    endpoint:
+      rpc: 'http://stargaze-local:26657'
+      rest: 'http://stargaze-local:1317'
+      grpc: 'http://stargaze-local:9090'
+    gas:
+      price: 1000
+      denom: 'ustars'
+    domain: 7865 # stargaze -> ascii / decimal -> sum
+
+deploy:
+  ism:
+    type: 'multisig'
+    owner: '<signer>'
+    validators:
+      7865: # 'stargaze_dev_wallet'
+        addrs:
+          - '<signer>'
+        threshold: 1
+  hooks:
+    default:
+      type: aggregate
+      owner: <signer>
+      hooks:
+        - type: merkle
+
+        - type: pausable
+          owner: <signer>
+          paused: false
+
+        - type: igp
+          owner: <signer>
+          token: 'ustars'
+          configs:
+            11820:
+              exchange_rate: 1
+              gas_price: 1000
+          default_gas_usage: 1
+    required:
+      type: fee
+      owner: <signer>
+      fee:
+        denom: 'ustars'
+        amount: 1000

@@ -11,13 +11,9 @@ SLEEP = "6"
 # Astria - add 50051 for GRPC
 # EXPOSE 8545 8546 30303 30303/udp 50051
 FORMA = {
-    "public_rpc_port": 26657,
-    "public_p2p_port": 26656,
-    "public_proxy_port": 26658,
-    "public_grpc_port": 9090,
-    "public_grpc_web_port": 9091,
-    "public_json_rpc_port": 8545,
-    "public_rest_port": 1317,
+    "public_grpc_port": 50051,
+    "public_json_rpc_port": 8546,
+    "public_ws_port": 8551,
 }
 
 LAZY = {
@@ -45,9 +41,29 @@ STARGAZE= {
   }
 
 HYPERLANE= {
-    "relayer": {
-      "grpc_port": 8092
+    "lazy-stargaze": {
+        "relayer": {
+            "public_grpc_port": 9110
+        },
+        "lazy_validator": {
+            "public_grpc_port": 9120
+        },
+        "stargaze_validator": {
+            "public_grpc_port": 9121
+        }
+    },
+    "lazy-forma":{
+        "relayer": {
+            "public_grpc_port": 9310
+        },
+        "lazy_validator": {
+            "public_grpc_port": 9320
+        },
+        "forma_validator": {
+            "public_grpc_port": 9321
+        }
     }
+
 }
 
 BLOCKSCOUT = {

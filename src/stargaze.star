@@ -37,7 +37,7 @@ def run(
     # load entry-point file as a volume file
     data = plan.upload_files(
         src=data_path,
-        name="stargaze-entrypoint",
+        name="stargaze_entrypoint",
     )
 
     service_config=ServiceConfig(
@@ -111,3 +111,39 @@ def run(
         "dev_wallet" : { "address": dev_addr, "eth_addr": dev_eth , "balance": dev_balances }, 
         "contracts": contracts,
     }
+
+def fix_hyperlane_validator_init(
+    plan,
+    config
+):
+    # Inside stargaze validator: cat /etc/validator/stargaze/checkpoint/announcement.json
+    # {
+    #   "value": {
+    #     "validator": "0xc1ffe94c2436f360c5a92477d25287e4e02ad97d",
+    #     "mailbox_address": "0x9e28beafa966b2407bffb0d48651e94972a56e69f3c0897d9e8facbdaeb98386",
+    #     "mailbox_domain": 7865,
+    #     "storage_location": "file:///etc/validator/stargaze/checkpoint"
+    #   },
+    #   "signature": {
+    #     "r": "0xe151c3d64fb0c57e5f1a240e8cc46b6fb62510e4ff0b3d72c3b9e9098684d1cc",
+    #     "s": "0x2bf400dee5c0eff019711daba1b42e06dd773d2b85f9068ebbadc3dc877aa0f7",
+    #     "v": 28
+    #   },
+    #   "serialized_signature": "0xe151c3d64fb0c57e5f1a240e8cc46b6fb62510e4ff0b3d72c3b9e9098684d1cc2bf400dee5c0eff019711daba1b42e06dd773d2b85f9068ebbadc3dc877aa0f71c"
+    # }
+
+    # starsd tx wasm execute 
+    # stars17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsh7yame 
+    # '{"announce": { "validator": "c1ffe94c2436f360c5a92477d25287e4e02ad97d", "storage_location": "file:///etc/validator/stargaze/checkpoint", "signature": "e151c3d64fb0c57e5f1a240e8cc46b6fb62510e4ff0b3d72c3b9e9098684d1cc2bf400dee5c0eff019711daba1b42e06dd773d2b85f9068ebbadc3dc877aa0f71c" } }' 
+    # --keyring-backend test --fees 75000ustars --from dev01 --output json -y
+    contract_addr = config["chains"]["stargaze"]["validator_announce_cosmos"]
+    validator_addr = "c1ffe94c2436f360c5a92477d25287e4e02ad97d"
+    storage_location = "file:///etc/validator/stargaze/checkpoint"
+    signature= "e151c3d64fb0c57e5f1a240e8cc46b6fb62510e4ff0b3d72c3b9e9098684d1cc2bf400dee5c0eff019711daba1b42e06dd773d2b85f9068ebbadc3dc877aa0f71c"
+    msg = '{"announce": { "validator": "'+validator_addr+'", "storage_location": "'+storage_location+'", "signature": "'+signature+'" } }'
+    cmd="{0} tx wasm execute {1} '".format(APP, contract_addr)+msg+"' --keyring-backend test --fees 75000ustars --from {0} --output json -y 2> /dev/null".format(WALLET_1)
+    event_type="instantiate"
+    event_key="_contract_address"
+    plan.print(cmd)
+
+    data = utils.execute(plan,SERVICE_NAME,APP,cmd,event_type,event_key)

@@ -26,13 +26,7 @@
     "paths": {
       "@shared/*": ["./src/shared/*"],
       "@commands/*": ["./src/commands/*"],
-      "@deploy/*": ["./src/deploy/*"],
-      "@cw-hpl/*": ["./src/cw-hpl/*"],
-      "@test01/*": ["./src/test01/*"],
-      "@test02/*": ["./src/test02/*"],
-      "@compile/*": ["./src/compile/*"],
-      "@wallet/*": ["./src/wallet/*"],
-      "@eth/*": ["./src/eth/*"]
+      "@eth_contracts/*": ["./src/eth_contracts/*"]
     }
   },
   "include": ["src/**/*"],

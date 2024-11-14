@@ -1,7 +1,8 @@
 networks:
   - id: "stargaze"
-    signer: "<mnemonic>"
     hrp: "stars"
+    protocol: "cosmos"
+    domain: 7865 # stargaze -> ascii / decimal -> sum
     endpoint:
       rpc: "http://localhost:21657"
       rest: "http://localhost:1316"
@@ -9,39 +10,41 @@ networks:
     gas:
       price: 1000
       denom: "ustars"
-    domain: 7865 # stargaze -> ascii / decimal -> sum
-
-deploy:
-  ism:
-    type: "multisig"
-    owner: "<signer>"
-    validators:
-      7865: # 'stargaze_dev_wallet'
-        addrs:
-          - "<signer>"
-        threshold: 1
-  hooks:
-    default:
-      type: aggregate
-      owner: <signer>
-      hooks:
-        - type: merkle
-
-        - type: pausable
-          owner: <signer>
-          paused: false
-
-        - type: igp
-          owner: <signer>
-          token: "ustars"
-          configs:
-            11820:
-              exchange_rate: 1
-              gas_price: 1000
-          default_gas_usage: 1
-    required:
-      type: fee
-      owner: <signer>
-      fee:
-        denom: "ustars"
-        amount: 1000
+    nativeCurrency:
+      name: "stars"
+      symbol: "stars"
+      decimals: 6
+  - id: "lazy"
+    hrp: ""
+    protocol: "ethereum"
+    domain: 11820
+    endpoint:
+      jsonrpc: "http://localhost:8545"
+      rpc: ""
+      rest: "http://localhost:1317"
+      grpc: "http://127.0.0.1:9090"
+    gas:
+      price: 1000
+      denom: "aart"
+    network: "test"
+    nativeCurrency:
+      name: "art"
+      symbol: "ART"
+      decimals: 18
+  - id: "forma"
+    hrp: ""
+    protocol: "ethereum"
+    domain: 1337
+    endpoint:
+      jsonrpc: "http://localhost:8546"
+      rpc: ""
+      rest: ""
+      grpc: ""
+    gas:
+      price: 1000
+      denom: "utia"
+    network: "test"
+    nativeCurrency:
+      name: "tia"
+      symbol: "TIA"
+      decimals: 18

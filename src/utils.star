@@ -149,6 +149,23 @@ def instantiate(plan,service_name,app,code_id, wallet_owner,init_msg,label):
     contract_addr=parse_txhash(plan,service_name,app,tx_hash,"instantiate","_contract_address")
     return contract_addr
 
+def execute(plan,service_name,app, cmd, event_type,event_key):
+    filter=" | jq '.txhash'" + CLEAN
+    exec = cmd + filter
+    tx_hash = plan.exec(
+        description="Execute contract.".format(),
+        service_name=service_name,
+        recipe=ExecRecipe(
+            command=[
+                "/bin/sh",
+                "-c",
+                exec,
+            ]
+        ),
+    )["output"]
+    data=parse_txhash(plan,service_name,app,tx_hash,"instantiate","_contract_address")
+    return data
+
 def parse_txhash(plan,service_name,app,tx_hash,event_type,event_key):
     filter = get_filter_exp(event_type,event_key)
     cmd="sleep {0} && {1} q tx {2}".format(constants.SLEEP,app,tx_hash) + " --output json | " + filter
