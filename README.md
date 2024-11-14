@@ -67,7 +67,7 @@ export VAL_KEY="icon hospital stick paddle turn suspect gentle since raven sign 
 Clone the repository and run the infra via kurtosis
 
 ```bash
-git clone https://github.com/Lazychain/lazy_poc
+git clone https://github.com/Lazychain/lazy_poc && cd lazy_poc
 kurtosis clean --all && kurtosis run --enclave test . "$(echo { \"DEV_MNEMONIC\": $HYP_KEY, \"VAL_MNEMONIC\": $VAL_KEY})"
 ```
 

@@ -1,0 +1,82 @@
+{
+  "chains": {
+    "lazy": {
+      "name": "lazy",
+      "displayName": "Lazy",
+      "chainId": 11820,
+      "domainId": 11820,
+      "protocol": "ethereum",
+      "isTestnet": true,
+      "nativeToken": {
+        "decimals": 18,
+        "name": "art",
+        "symbol": "ART"
+      },
+      "rpcUrls": [
+        {
+          "http": "http://lazy-local:8545"
+        }
+      ],
+      "grpcUrls": [
+        {
+          "http": "http://lazy-local:9090"
+        }
+      ],
+      "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+
+      "domainRoutingIsmFactory": "{{.chains.lazy.domainRoutingIsmFactory}}",
+      "interchainAccountIsm": "{{.chains.lazy.interchainAccountIsm}}",
+      "interchainAccountRouter": "{{.chains.lazy.interchainAccountRouter}}",
+      "mailbox": "{{.chains.lazy.mailbox}}",
+      "merkleTreeHook": "{{.chains.lazy.merkleTreeHook}}",
+      "proxyAdmin": "{{.chains.lazy.proxyAdmin}}",
+      "staticAggregationHookFactory": "{{.chains.lazy.staticAggregationHookFactory}}",
+      "staticAggregationIsmFactory": "{{.chains.lazy.staticAggregationIsmFactory}}",
+      "staticMerkleRootMultisigIsmFactory": "{{.chains.lazy.staticMerkleRootMultisigIsmFactory}}",
+      "staticMerkleRootWeightedMultisigIsmFactory": "{{.chains.lazy.staticMerkleRootWeightedMultisigIsmFactory}}",
+      "staticMessageIdMultisigIsmFactory": "{{.chains.lazy.staticMessageIdMultisigIsmFactory}}",
+      "staticMessageIdWeightedMultisigIsmFactory": "{{.chains.lazy.staticMessageIdWeightedMultisigIsmFactory}}",
+      "testRecipient": "{{.chains.lazy.testRecipient}}",
+      "validatorAnnounce": "{{.chains.lazy.validatorAnnounce}}"
+    },
+    "forma": {
+      "name": "forma",
+      "displayName": "Forma",
+      "chainId": 1337,
+      "domainId": 1337,
+      "protocol": "ethereum",
+      "isTestnet": true,
+      "nativeToken": {
+        "decimals": 18,
+        "name": "TIA",
+        "symbol": "TIA"
+      },
+      "rpcUrls": [
+        {
+          "http": "http://forma-local:8545"
+        }
+      ],
+      "grpcUrls": [
+        {
+          "http": "http://forma-local:9090"
+        }
+      ],
+      "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+
+      "domainRoutingIsmFactory": "{{.chains.forma.domainRoutingIsmFactory}}",
+      "interchainAccountIsm": "{{.chains.forma.interchainAccountIsm}}",
+      "interchainAccountRouter": "{{.chains.forma.interchainAccountRouter}}",
+      "mailbox": "{{.chains.forma.mailbox}}",
+      "merkleTreeHook": "{{.chains.forma.merkleTreeHook}}",
+      "proxyAdmin": "{{.chains.forma.proxyAdmin}}",
+      "staticAggregationHookFactory": "{{.chains.forma.staticAggregationHookFactory}}",
+      "staticAggregationIsmFactory": "{{.chains.forma.staticAggregationIsmFactory}}",
+      "staticMerkleRootMultisigIsmFactory": "{{.chains.forma.staticMerkleRootMultisigIsmFactory}}",
+      "staticMerkleRootWeightedMultisigIsmFactory": "{{.chains.forma.staticMerkleRootWeightedMultisigIsmFactory}}",
+      "staticMessageIdMultisigIsmFactory": "{{.chains.forma.staticMessageIdMultisigIsmFactory}}",
+      "staticMessageIdWeightedMultisigIsmFactory": "{{.chains.forma.staticMessageIdWeightedMultisigIsmFactory}}",
+      "testRecipient": "{{.chains.forma.testRecipient}}",
+      "validatorAnnounce": "{{.chains.forma.validatorAnnounce}}"
+    }
+  }
+}

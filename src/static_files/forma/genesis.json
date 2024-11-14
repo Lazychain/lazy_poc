@@ -11,8 +11,10 @@
     "istanbulBlock": 0,
     "berlinBlock": 0,
     "londonBlock": 0,
+    "mergeForkBlock": 0,
+    "mergeForkEpoch": 0,
     "shanghaiTime": 0,
-    "terminalTotalDifficulty": 0,
+    "terminalTotalDifficulty": -1,
     "terminalTotalDifficultyPassed": true,
     "ethash": {},
     "astriaRollupName": "astria-test-chain",
@@ -30,8 +32,13 @@
       }
     }
   },
-  "difficulty": "0",
-  "gasLimit": "30000000",
+  "difficulty": "0x20000",
+  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000040",
+  "gasLimit": "0x8000000",
+  "mixhash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "nonce": "0x0000000000000042",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "timestamp": "0x0",
   "alloc": {
     "0x468402289EbA56fC07aBf413aBF9f0a6Da4Ea15D": {
       "balance": "3000000000000000000000"

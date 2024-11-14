@@ -6,13 +6,12 @@ import colors from "colors";
 import { Command } from "commander";
 import { Logger } from "../shared/logger";
 import { EthClient } from "@shared/eth_client";
-import type { Wallet } from "ethers";
 import { deployDemo } from "@eth_contracts/demo";
 
 colors.enable();
 const logger = new Logger("compile");
 
-export const compileCmd = new Command("compile")
+export const contractCmd = new Command("contract")
   .configureHelp({
     showGlobalOptions: true,
   })
@@ -28,7 +27,7 @@ export const compileCmd = new Command("compile")
     await fs.writeFileSync("demo.json", artifact);
   });
 
-compileCmd
+contractCmd
   .command("deploy")
   .argument("<networkId>", "network Id")
   .argument("<mnemonic>", "mnemonic")

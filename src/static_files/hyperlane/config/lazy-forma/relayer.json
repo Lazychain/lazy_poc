@@ -1,0 +1,34 @@
+{
+  "db": "/etc/data/db",
+  "relayChains": "forma,lazy",
+  "allowLocalCheckpointSyncers": "true",
+  "gasPaymentEnforcement": [{ "type": "none" }],
+  "whitelist": [
+    {
+      "origindomain": [1337],
+      "destinationDomain": [11820]
+    },
+    {
+      "origindomain": [11820],
+      "destinationDomain": [1337]
+    }
+  ],
+  "chains": {
+    "lazy": {
+      "signer": {
+        "type": "hexKey",
+        "key": "0x312bb42931060d953513de5c1f658f54592bd82650e5a7a6b770d5149c56d86e"
+      },
+      "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+      "grpcUrl": "http://lazy-local:9090"
+    },
+    "forma": {
+      "signer": {
+        "type": "hexKey",
+        "key": "0x312bb42931060d953513de5c1f658f54592bd82650e5a7a6b770d5149c56d86e"
+      },
+      "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+      "grpcUrl": "http://forma-local:9090"
+    }
+  }
+}
