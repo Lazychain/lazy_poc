@@ -300,3 +300,8 @@ funds: [
                         ^
 error: Query failed with (6): rpc error: code = Unknown desc = failed to execute message; message index: 0: dispatch: submessages: dispatch: submessages: No funds sent: execute wasm contract failed [CosmWasm/wasmd@v0.45.0/x/wasm/keeper/keeper.go:395] With gas wanted: '50000000' and gas used: '961480' : unknown request
 ```
+
+```bash
+cd sdk
+bun run src/index.ts test-token "lazy" "$(echo $HYP_KEY)"
+```

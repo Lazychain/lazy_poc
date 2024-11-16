@@ -2,7 +2,7 @@ import colors from "colors";
 
 import { Command } from "commander";
 import { Logger } from "../shared/logger";
-import { coins } from "@cosmjs/stargate";
+import { coin, coins } from "@cosmjs/stargate";
 import {
   executeCosmosContract,
   getCosmosClient,
@@ -33,7 +33,12 @@ export const testDispatchCosmosCmd = new Command("test-dispatch-cosmos")
     console.log(`${networkId}`);
     console.log(`${mnemonic}`);
     const client: CosmosClient = await getCosmosClient(networkId, mnemonic);
+    // should this be on aart or ustars?
     const funds = coins(10000000, client.network.gas.denom);
+    // const funds = [
+    //   coin(1000, client.network.gas.denom),
+    //   coin(500, client.network.gas.denom),
+    // ];
     console.log(`${JSON.stringify(funds)}`);
     console.log(`receipt[${recipientAddr}]`);
     console.log(`destDomain[${ETH_CHAIN_DOMAIN}]`);

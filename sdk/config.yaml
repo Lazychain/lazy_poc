@@ -1,12 +1,10 @@
 networks:
   - id: "stargaze"
     hrp: "stars"
+    network: "stargaze"
     protocol: "cosmos"
     domain: 7865 # stargaze -> ascii / decimal -> sum
-    endpoint:
-      rpc: "http://localhost:21657"
-      rest: "http://localhost:1316"
-      grpc: "http://127.0.0.1:8090"
+    endpoint: "http://localhost:21657"
     gas:
       price: 1000
       denom: "ustars"
@@ -16,17 +14,13 @@ networks:
       decimals: 6
   - id: "lazy"
     hrp: ""
+    network: "test"
     protocol: "ethereum"
     domain: 11820
-    endpoint:
-      jsonrpc: "http://localhost:8545"
-      rpc: ""
-      rest: "http://localhost:1317"
-      grpc: "http://127.0.0.1:9090"
+    endpoint: "http://localhost:8545"
     gas:
       price: 1000
       denom: "aart"
-    network: "test"
     nativeCurrency:
       name: "art"
       symbol: "ART"
@@ -35,11 +29,7 @@ networks:
     hrp: ""
     protocol: "ethereum"
     domain: 1337
-    endpoint:
-      jsonrpc: "http://localhost:8546"
-      rpc: ""
-      rest: ""
-      grpc: ""
+    endpoint: "http://localhost:8546"
     gas:
       price: 1000
       denom: "utia"
@@ -48,3 +38,61 @@ networks:
       name: "tia"
       symbol: "TIA"
       decimals: 18
+
+bridges:
+  - id: "lazy_stargaze"
+    lazy:
+      domainRoutingIsmFactory: "0xD781Da4ed84470B706f8C6F12a13fa134c5B3d8D"
+      interchainAccountIsm: "0x96B6441a375b0B13E86ba853A542a8D4f8bf0a20"
+      interchainAccountRouter: "0xf7583BdeCf840e60657dd175dc6Ec172269eb8E7"
+      mailbox: "0x067A44Af3D39893Bd783518F6b687d89aed8f9b7"
+      merkleTreeHook: "0x18a2fD5E2791f8D7A87BE15F203ef4840691cd64"
+      proxyAdmin: "0x41F84AB405621BA3560D3E76A2Ae8845568FaCB4"
+      staticAggregationHookFactory: "0xfda383d60569eEC89dC7712D831232B271F59382"
+      staticAggregationIsmFactory: "0x4Abd22724265745B1914816E44619357B5B4dE6B"
+      staticMerkleRootMultisigIsmFactory: "0xfbb15A5773F84cdAe31e60cB0A487381d8D0dC14"
+      staticMerkleRootWeightedMultisigIsmFactory: "0xB0E38fca16B0330e0106BA76433bbf371E716e01"
+      staticMessageIdMultisigIsmFactory: "0x397925Dbfbc3c42f4b3eFa5E11e9B8e7c2B39CC7"
+      staticMessageIdWeightedMultisigIsmFactory: "0x77c8D0636De274A1B84a7bBED3898e839485d3c4"
+      testRecipient: "0xC14d13977d92ce0d6BeEFfDD6EDA179d3F225380"
+      validatorAnnounce: "0x0715Ceaeeb3276516b3ae9061BE74F7cdc433780"
+    stargaze:
+      staticAggregationHookFactory: "stars1vhndln95yd7rngslzvf6sax6axcshkxqpmpr886ntelh28p9ghuqrjwdrx"
+      staticMessageIdMultisigIsmFactory: "stars1436kxs0w2es6xlqpp9rd35e3d0cjnw4sv8j3a7483sgks29jqwgsqh7env"
+      interchainGasPaymaster: "0x581ce22ef1ad28ffa1558fb6fa6e53904eef5e96efb7e7c96209a75e5d565c36"
+      mailbox: "0x9e28beafa966b2407bffb0d48651e94972a56e69f3c0897d9e8facbdaeb98386"
+      mailbox_cosmos: stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja
+      merkleTreeHook: "0xbf5c82d76d2d94d385331d28fd7eb68e3523ee8de846a8831ed95df7190bdb59"
+      validatorAnnounce: "0xf04a313a7349b120c55c99788f12f712176bb3e5926d012d0ea72fa2bbb85051"
+      validator_announce_cosmos: stars17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsh7yame
+  - id: "lazy_forma"
+    lazy:
+      domainRoutingIsmFactory: "0xE313eB739702754821cE06957A38738EBF51c7dC"
+      interchainAccountIsm: "0x0c78012deFc5d01Fa017f084C20b406B2c27fd3b"
+      interchainAccountRouter: "0x385917d2C6f39A5D5FaB0F7a141406b10c67C2D0"
+      mailbox: "0x806145bacF052d29cC02a09E2EBF182cBdb2Ca0f"
+      merkleTreeHook: "0xb67a7271CA5D4Ff8a4788901F46CDf3A605b83A5"
+      proxyAdmin: "0xa26290401F5797675F445A911B33caB35f3748CA"
+      staticAggregationHookFactory: "0x7ea50E8e09241c9312A301F58C840E2Db7ae11D9"
+      staticAggregationIsmFactory: "0x3bB2841A2F7b5e98af683057F8e03FbeA6CA7bFC"
+      staticMerkleRootMultisigIsmFactory: "0x911361aB56F5961BA45884be01Ec1986e836921C"
+      staticMerkleRootWeightedMultisigIsmFactory: "0x48A19C635CA284dA58B76711a0014B614A4C7044"
+      staticMessageIdMultisigIsmFactory: "0xB3281B371b87816C49977684D5C8caEA177bB681"
+      staticMessageIdWeightedMultisigIsmFactory: "0xf0eCDFD76835740cE1dB63C760367CfF4Cdd5381"
+      testRecipient: "0x5AA4B65903D5CB727FFFF924DAcd8FEb828488A3"
+      validatorAnnounce: "0x89561e4A858d71C4eFB09f85D9e5FAd615da030c"
+    forma:
+      domainRoutingIsmFactory: "0xD781Da4ed84470B706f8C6F12a13fa134c5B3d8D"
+      interchainAccountIsm: "0x96B6441a375b0B13E86ba853A542a8D4f8bf0a20"
+      interchainAccountRouter: "0xf7583BdeCf840e60657dd175dc6Ec172269eb8E7"
+      mailbox: "0x067A44Af3D39893Bd783518F6b687d89aed8f9b7"
+      merkleTreeHook: "0x18a2fD5E2791f8D7A87BE15F203ef4840691cd64"
+      proxyAdmin: "0x41F84AB405621BA3560D3E76A2Ae8845568FaCB4"
+      staticAggregationHookFactory: "0xfda383d60569eEC89dC7712D831232B271F59382"
+      staticAggregationIsmFactory: "0x4Abd22724265745B1914816E44619357B5B4dE6B"
+      staticMerkleRootMultisigIsmFactory: "0xfbb15A5773F84cdAe31e60cB0A487381d8D0dC14"
+      staticMerkleRootWeightedMultisigIsmFactory: "0xB0E38fca16B0330e0106BA76433bbf371E716e01"
+      staticMessageIdMultisigIsmFactory: "0x397925Dbfbc3c42f4b3eFa5E11e9B8e7c2B39CC7"
+      staticMessageIdWeightedMultisigIsmFactory: "0x77c8D0636De274A1B84a7bBED3898e839485d3c4"
+      testRecipient: "0xC14d13977d92ce0d6BeEFfDD6EDA179d3F225380"
+      validatorAnnounce: "0x0715Ceaeeb3276516b3ae9061BE74F7cdc433780"

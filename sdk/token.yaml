@@ -1,0 +1,22 @@
+tokens:
+  - id: "lazy"
+    protocol: ethereum
+    type: native
+    mode: collateral
+    config:
+      collateral:
+        denom: aart
+  - id: "forma"
+    protocol: ethereum
+    type: native
+    mode: collateral
+    config:
+      collateral:
+        denom: utia
+  - id: "stargaze"
+    protocol: cosmos
+    type: native
+    mode: collateral
+    config:
+      collateral:
+        denom: ustars

@@ -18,7 +18,7 @@ export class Logger {
     console.log(
       "[INFO]".yellow,
       `[${this.name}]`,
-      JSON.stringify(...args, null, 2)
+      `${JSON.stringify(...args, null, 2)}`.green
     );
 
   error = (...args: unknown[]) =>
@@ -32,4 +32,10 @@ export class Logger {
 
   notice = (...args: unknown[]) =>
     console.log("[NOTICE]".yellow.padEnd(10, " "), `[${this.name}]`, ...args);
+
+  separator = () =>
+    console.log(
+      "--------------------------------------------------------------------------"
+        .yellow
+    );
 }

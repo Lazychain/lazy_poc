@@ -1,8 +1,11 @@
 import {
   SigningCosmWasmClient,
+  type ExecuteResult,
   type JsonObject,
+  type UploadResult,
 } from "@cosmjs/cosmwasm-stargate";
 import { Secp256k1, keccak256 } from "@cosmjs/crypto";
+import { AccessConfig, AccessType } from "cosmjs-types/cosmwasm/wasm/v1/types";
 import {
   DirectSecp256k1HdWallet,
   type AccountData,
@@ -16,15 +19,16 @@ import {
 import { Logger } from "./logger";
 import { getNetwork, type Config } from "./config";
 import { extractByte32AddrFromBech32, sleep, waitTx } from "./utils";
+import * as fs from "fs";
 
-const logger = new Logger("config");
+const logger = new Logger("cosmos-client");
 
 export class CosmosClient {
   wasm: SigningCosmWasmClient;
   stargate: SigningStargateClient;
   network: Config["networks"][number];
-  account: AccountData;
-  signer_addr: string;
+  signer: AccountData;
+  signer_eth_addr: string;
   signer_pubkey: string;
 
   constructor(
@@ -32,124 +36,111 @@ export class CosmosClient {
     stargate: SigningStargateClient,
     networkConfig: Config["networks"][number],
     signer: AccountData,
-    signer_addr: string,
+    signer_eth_addr: string,
     signer_pubkey: string
   ) {
     this.wasm = wasm;
     this.stargate = stargate;
-    this.account = signer;
-    this.signer_addr = signer_addr;
+    this.signer = signer;
+    this.signer_eth_addr = signer_eth_addr;
     this.signer_pubkey = signer_pubkey;
     this.network = networkConfig;
   }
 }
 
+// https://gist.github.com/webmaster128/8444d42a7eceeda2544c8a59fbd7e1d9
 export async function getCosmosClient(
   networkId: string,
   mnemonic: string
 ): Promise<CosmosClient> {
-  logger.info(`getSigningClient [${networkId}]`);
   const network = getNetwork(networkId);
 
   const { hrp, gas } = network;
 
-  const endpoint = network.endpoint;
-
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: hrp,
   });
-  const [account] = await wallet.getAccounts();
+  const [signer] = await wallet.getAccounts();
   const gasPrice = GasPrice.fromString(`${gas.price}${gas.denom}`);
 
   const wasm = await SigningCosmWasmClient.connectWithSigner(
-    endpoint.rpc,
+    network.endpoint,
     wallet,
-    { gasPrice }
+    {
+      gasPrice,
+    }
   );
   const stargate = await SigningStargateClient.connectWithSigner(
-    endpoint.rpc,
+    network.endpoint,
     wallet,
     { gasPrice }
   );
 
-  const pubkey = Secp256k1.uncompressPubkey(account.pubkey);
+  const pubkey = Secp256k1.uncompressPubkey(signer.pubkey);
   const ethaddr = keccak256(pubkey.slice(1)).slice(-20);
 
   const result = {
     wasm,
     stargate,
     network,
-    account,
-    signer_addr: Buffer.from(ethaddr).toString("hex"),
-    signer_pubkey: Buffer.from(account.pubkey).toString("hex"),
+    signer,
+    signer_eth_addr: Buffer.from(ethaddr).toString("hex"),
+    signer_pubkey: Buffer.from(signer.pubkey).toString("hex"),
   };
 
-  logger.info(
-    `Signer Addr[${result.account.address}] ETH[${result.signer_addr}] PubKey[${result.signer_pubkey}]`
+  logger.success(
+    `Signer Addr[${result.signer.address}] ETH[${result.signer_eth_addr}] PubKey[${result.signer_pubkey}]`
   );
 
   return result;
 }
 
-export async function deployCosmosContract(
+export async function instantiateCosmosContract(
   client: CosmosClient,
   contractName: string,
   codeId: number,
-  initMsg: object,
-  retryAfter = 1000
+  initMsg: object
 ): Promise<{ type: string; address: string; hexed: string }> {
-  const { wasm, stargate, signer_addr } = client;
+  const { wasm, stargate, signer } = client;
 
-  try {
-    const res = await wasm.instantiate(
-      signer_addr,
-      codeId,
-      initMsg,
-      `cw-hpl: ${contractName}`,
-      "auto"
-    );
-    const receipt = await waitTx(res.transactionHash, stargate);
-    if (receipt.code > 0) {
-      logger.error(
-        "deploy tx failed.",
-        `contract=${contractName}, hash=${receipt.hash}`
-      );
-      throw new Error(JSON.stringify(receipt.events, null, 2));
-    }
+  const res = await wasm.instantiate(
+    signer.address,
+    codeId,
+    initMsg,
+    contractName,
+    "auto"
+  );
+  const receipt = await waitTx(res.transactionHash, stargate);
 
-    logger.json(
-      `I ${contractName}: ${JSON.stringify(initMsg, null, 2)} -> [${
-        res.contractAddress
-      }]`
+  if (receipt.code > 0) {
+    logger.failure(
+      "instantiate tx failed.",
+      `contract=${contractName}, hash=${receipt.hash}`
     );
-    return {
-      type: contractName,
-      address: res.contractAddress,
-      hexed: extractByte32AddrFromBech32(res.contractAddress),
-    };
-  } catch (e) {
-    logger.error(`failed to deploy contract. retrying after ${retryAfter}ms`);
-    logger.error("=> error: ", e);
-    await sleep(retryAfter);
-    return deployCosmosContract(
-      client,
-      contractName,
-      codeId,
-      initMsg,
-      retryAfter * 2
-    );
+    throw new Error(JSON.stringify(receipt.events, null, 2));
   }
+
+  logger.success(
+    `I ${contractName}: ${JSON.stringify(initMsg, null, 2)} -> [${
+      res.contractAddress
+    }]`
+  );
+  return {
+    type: contractName,
+    address: res.contractAddress,
+    hexed: extractByte32AddrFromBech32(res.contractAddress),
+  };
 }
 
 export async function executeCosmosContract(
-  { wasm, stargate, signer_addr, account }: CosmosClient,
+  { wasm, stargate, signer: account }: CosmosClient,
   contractName: string,
   contractAddress: string,
   msg: object,
   funds: { amount: string; denom: string }[] = []
 ): Promise<IndexedTx> {
-  logger.info(`senderAddress=${account.address}`);
-  const res = await wasm.execute(
+  logger.info(`EXECUTING ${contractName}`);
+  const res: ExecuteResult = await wasm.execute(
     account.address,
     contractAddress,
     msg,
@@ -157,6 +148,7 @@ export async function executeCosmosContract(
     "test",
     funds
   );
+
   const receipt = await waitTx(res.transactionHash, stargate);
   if (receipt.code > 0) {
     logger.error(
@@ -166,21 +158,19 @@ export async function executeCosmosContract(
     throw new Error(JSON.stringify(receipt.events));
   }
 
-  logger.json(
-    `X ${contractName}: ${JSON.stringify(msg, null, 2)} -> [${receipt}]`
-  );
+  logger.success(`Execute [${contractName}]: Tx[${receipt.hash}].`);
 
   return receipt;
 }
 
 export async function executeCosmosMultiMsg(
-  { wasm, stargate, signer_addr }: CosmosClient,
+  { wasm, stargate, signer }: CosmosClient,
   msgs: { contractName: string; contractAddress: string; msg: object }[]
 ): Promise<IndexedTx> {
   msgs.map((v) => logger.json(JSON.stringify(v, null, 2)));
 
   const res = await wasm.executeMultiple(
-    signer_addr,
+    signer.address,
     msgs.map((v) => ({
       contractAddress: v.contractAddress,
       msg: v.msg,
@@ -217,4 +207,37 @@ export async function wasmQuery(
   queryMsg: JsonObject
 ): Promise<IndexedTx> {
   return await wasm.queryContractSmart(contractAddress, queryMsg);
+}
+
+export async function upload(
+  client: CosmosClient,
+  contract_name: string
+): Promise<number> {
+  // const restrictedInstantiationPermissions: AccessConfig = {
+  //   permission: AccessType.ACCESS_TYPE_ANY_OF_ADDRESSES,
+  //   address: "", //
+  //   addresses: [client.signer_addr],
+  // };
+
+  const contract_path = "./artifacts/" + contract_name + ".wasm";
+  const contract_bytes: Uint8Array = fs.readFileSync(contract_path);
+  const upload: UploadResult = await client.wasm.upload(
+    client.signer.address,
+    contract_bytes,
+    "auto",
+    undefined,
+    undefined
+  );
+
+  const receipt: IndexedTx = await waitTx(
+    upload.transactionHash,
+    client.stargate
+  );
+
+  if (receipt.code > 0) {
+    logger.failure(`tx: ${upload.transactionHash}`);
+  }
+
+  logger.success(`codeId: ${upload.codeId}, tx: ${upload.transactionHash}`);
+  return upload.codeId;
 }

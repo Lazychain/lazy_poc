@@ -16,7 +16,7 @@ export async function deployhypERC20(
   );
 
   // instantiate
-  const contract = await hypERC20Factory.deploy([6, mailboxAddr]);
+  const contract = await hypERC20Factory.deploy(6, mailboxAddr); // decimals, mailbox
   await contract.deployed();
   return contract.address;
 }
@@ -30,18 +30,26 @@ export function getHypERC20Contract(
 
 export async function executeERC20_initialize(
   signer: Wallet,
-  erc20Addr: string
+  erc20Addr: string,
+  hook: string,
+  ism: string
 ) {
   const client = getHypERC20Contract(signer, erc20Addr);
   const clientWithSigner = client.connect(signer);
 
+  const totalSupply = 0n; // Total supply
+  const name = "Hyperlane Bridged STAR"; // Warp contract name
+  const symbol = "STAR"; // Warp route asset name
+  const owner = signer.address;
   let txr = await clientWithSigner.initialize(
-    0n,
-    "Hyperlane Bridged STAR",
-    "STAR"
+    totalSupply,
+    name,
+    symbol,
+    hook,
+    ism,
+    owner
   );
   await txr.wait();
-  logger.log(`Transaction hash: ${JSON.stringify(txr)}`);
 }
 
 export async function executeERC20_setInterchainSecurityModule(
@@ -55,5 +63,11 @@ export async function executeERC20_setInterchainSecurityModule(
   // register ism address in the warp contract
   let txr = await clientWithSigner.setInterchainSecurityModule(ismAddr);
   await txr.wait();
-  logger.log(`Transaction hash: ${JSON.stringify(txr)}`);
 }
+
+export async function EthTransfer(
+  hypERC20ContractWithSigner: Contract, // address of warp route
+  destination_domain: number,
+  amount: number,
+  fee: number
+) {}

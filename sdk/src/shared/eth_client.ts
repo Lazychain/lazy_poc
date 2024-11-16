@@ -1,5 +1,8 @@
 import { getNetwork, type Config } from "./config";
 import { providers, Wallet } from "ethers";
+import { Logger } from "./logger";
+
+const logger = new Logger("eth-client");
 
 export class EthClient {
   provider: providers.JsonRpcProvider;
@@ -8,16 +11,16 @@ export class EthClient {
 
   constructor(networkId: string, mnemonic: string) {
     const networkConfig: Config["networks"][number] = getNetwork(networkId);
-    console.log(networkConfig.endpoint.jsonrpc);
-    const endpoint = networkConfig.endpoint;
-
     const provider: providers.JsonRpcProvider = new providers.JsonRpcProvider(
-      endpoint.jsonrpc
+      networkConfig.endpoint
     );
     const wallet: Wallet = Wallet.fromMnemonic(mnemonic);
     const signer: Wallet = wallet.connect(provider);
     this.provider = provider;
     this.signer = signer;
     this.networkConfig = networkConfig;
+    logger.success(
+      `Signer Addr[${signer.address}] PubKey[${wallet.publicKey}]`
+    );
   }
 }
