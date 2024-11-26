@@ -17,7 +17,7 @@ import {
 } from "@cosmjs/stargate";
 
 import { Logger } from "./logger";
-import { getNetwork, type Config } from "./config";
+import { getNetwork, type NetworksConfig } from "./config/network";
 import { extractByte32AddrFromBech32, sleep, waitTx } from "./utils";
 import * as fs from "fs";
 
@@ -26,7 +26,7 @@ const logger = new Logger("cosmos-client");
 export class CosmosClient {
   wasm: SigningCosmWasmClient;
   stargate: SigningStargateClient;
-  network: Config["networks"][number];
+  network: NetworksConfig["networks"][number];
   signer: AccountData;
   signer_eth_addr: string;
   signer_pubkey: string;
@@ -34,7 +34,7 @@ export class CosmosClient {
   constructor(
     wasm: SigningCosmWasmClient,
     stargate: SigningStargateClient,
-    networkConfig: Config["networks"][number],
+    networkConfig: NetworksConfig["networks"][number],
     signer: AccountData,
     signer_eth_addr: string,
     signer_pubkey: string

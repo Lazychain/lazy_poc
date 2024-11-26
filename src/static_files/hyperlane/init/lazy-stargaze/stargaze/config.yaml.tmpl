@@ -7,7 +7,7 @@ networks:
       rest: 'http://stargaze-local:1317'
       grpc: 'http://stargaze-local:9090'
     gas:
-      price: 1000
+      price: 0
       denom: 'ustars'
     domain: 7865 # stargaze -> ascii / decimal -> sum
 
@@ -21,25 +21,26 @@ deploy:
           - '<signer>'
         threshold: 1
   hooks:
+    # default: invoked (unless overridden) with remaining value after required hook
     default:
+      # hpl_hook_aggregate
       type: aggregate
       owner: <signer>
       hooks:
-        - type: merkle
-
-        - type: pausable
-          owner: <signer>
-          paused: false
-
+        # hpl_igp + hpl_igp_oracle
         - type: igp
           owner: <signer>
           token: 'ustars'
           configs:
             11820:
               exchange_rate: 1
-              gas_price: 1000
-          default_gas_usage: 1
+              gas_price: 0
+          default_gas_usage: 0
+        # hpl_hook_merkle
+        - type: merkle
+    # required: invoked for all dispatch calls with value that covers the required fee
     required:
+    # hpl_hook_fee
       type: fee
       owner: <signer>
       fee:

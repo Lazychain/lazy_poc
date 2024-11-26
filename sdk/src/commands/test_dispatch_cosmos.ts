@@ -10,14 +10,28 @@ import {
   type CosmosClient,
 } from "@shared/cosmos_client";
 import { addPad, extractByte32AddrFromBech32 } from "@shared/utils";
-import type { JsonObject } from "@cosmjs/cosmwasm-stargate";
+import type { IndexedTx, JsonObject } from "@cosmjs/cosmwasm-stargate";
+import { getBridge, getNetwork, type Config } from "@shared/config";
+import {
+  queryMailboxDefaultHook,
+  queryMailboxQuoteDispatch,
+  queryMailboxStatus,
+} from "../cosmos_contracts/hlp_mailbox";
+import { queryStatus } from "../cosmos_contracts/hpl_warp_native";
+import { queryAggregateHookStatus } from "../cosmos_contracts/hpl_hook_aggregate";
+import {
+  queryFeeHookQuoteDispatch,
+  queryFeeHookStatus,
+} from "../cosmos_contracts/hlp_hook_fee";
+import { queryIGPStatus } from "../cosmos_contracts/hpl_igp";
 
 colors.enable();
 const logger = new Logger("test-dispatch-cosmos");
 
-export const HYP_COSMOS_MAILBOX =
-  "stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja";
-export const ETH_CHAIN_DOMAIN = 11820; // stargaze
+const BRIDGE_ID = "lazy_stargaze";
+const CHAIN_A = "lazy";
+const CHAIN_B = "stargaze";
+export const ETH_CHAIN_DOMAIN = 11820; // lazy
 const TEST_MSG = "hello";
 
 export const testDispatchCosmosCmd = new Command("test-dispatch-cosmos")
@@ -32,64 +46,61 @@ export const testDispatchCosmosCmd = new Command("test-dispatch-cosmos")
     console.log(`${recipientAddr}`);
     console.log(`${networkId}`);
     console.log(`${mnemonic}`);
-    const client: CosmosClient = await getCosmosClient(networkId, mnemonic);
+
+    const cw_client: CosmosClient = await getCosmosClient(CHAIN_B, mnemonic);
+    const stargaze: Config["networks"][number] = getNetwork(CHAIN_B);
+    const lazy: Config["networks"][number] = getNetwork(CHAIN_A);
+    const bridge: Config["bridges"][number] = getBridge(BRIDGE_ID);
+
     // should this be on aart or ustars?
-    const funds = coins(10000000, client.network.gas.denom);
-    // const funds = [
-    //   coin(1000, client.network.gas.denom),
-    //   coin(500, client.network.gas.denom),
-    // ];
+    //const funds = coins(10000000, client.network.gas.denom);
+    const funds = [
+      coin(500000, stargaze.gas.denom),
+      //coin(1000, stargaze.gas.denom),
+    ];
     console.log(`${JSON.stringify(funds)}`);
     console.log(`receipt[${recipientAddr}]`);
     console.log(`destDomain[${ETH_CHAIN_DOMAIN}]`);
-    console.log(`mailbox[${HYP_COSMOS_MAILBOX}]`);
+    console.log(`mailbox[${bridge.stargaze.mailbox}]`);
 
-    const msg0 = { mailbox: { default_hook: {} } };
-    console.log(`msg: ${JSON.stringify(msg0, null, 2)}`);
-    let res: JsonObject = await wasmQuery(client, HYP_COSMOS_MAILBOX, msg0);
-    console.log(`default_hook= ${res["default_hook"]}`);
+    await queryMailboxStatus(cw_client, bridge.stargaze.mailbox);
+    await queryAggregateHookStatus(
+      cw_client,
+      bridge.stargaze.hpl_hook_aggregate
+    );
+    await queryFeeHookStatus(cw_client, bridge.stargaze.hpl_hook_fee);
+    await queryIGPStatus(cw_client, bridge.stargaze.hpl_igp);
 
-    console.log(
-      `cosmos -> eth : [${res["default_hook"]}] -> [${addPad(
-        extractByte32AddrFromBech32(res["default_hook"])
-      )}]`
+    logger.json(
+      await queryMailboxQuoteDispatch(
+        cw_client,
+        bridge.stargaze.mailbox,
+        cw_client.signer.address,
+        recipientAddr,
+        TEST_MSG
+      )
     );
 
-    const msg1 = {
-      hook: {
-        quote_dispatch: {
-          sender: "stars1wj8h432p89c86fehty9xmwrnx78ttnrp0auwmq",
-          msg: {
-            dest_domain: 11820,
-            recipient_addr: addPad(
-              extractByte32AddrFromBech32(res["default_hook"])
-            ),
-            msg_body: Buffer.from(TEST_MSG, "utf-8").toString("hex"),
-          },
-        },
-      },
-    };
+    // logger.json(
+    //   await queryFeeHookQuoteDispatch(cw_client, bridge.stargaze.hpl_hook_fee)
+    // );
 
-    console.log(`msg: ${JSON.stringify(msg1, null, 2)}`);
-    res = await wasmQuery(client, HYP_COSMOS_MAILBOX, msg1);
-    console.log(`fees=${JSON.stringify(res["fees"], null, 2)}`);
-
-    const msg2 = {
+    const msg = {
       dispatch: {
         dest_domain: ETH_CHAIN_DOMAIN,
         recipient_addr: addPad(recipientAddr),
         msg_body: Buffer.from(TEST_MSG, "utf-8").toString("hex"),
       },
     };
-    console.log(JSON.stringify(msg2, null, 2));
+    console.log(JSON.stringify(msg, null, 2));
     console.log(`funds: ${JSON.stringify(funds, null, 2)}`);
-    res = await executeCosmosContract(
-      client,
+    let res2: IndexedTx = await executeCosmosContract(
+      cw_client,
       "mailbox",
-      HYP_COSMOS_MAILBOX,
-      msg2,
+      bridge.stargaze.mailbox,
+      msg,
       funds
     );
 
-    console.log(res);
+    logger.json(res2.events);
   });

@@ -1,8 +1,9 @@
 import { CosmosClient, wasmQuery } from "@shared/cosmos_client";
 import { Logger } from "../shared/logger";
-import type { JsonObject } from "@cosmjs/cosmwasm-stargate";
+import type { IndexedTx, JsonObject } from "@cosmjs/cosmwasm-stargate";
+import { addPad, extractByte32AddrFromBech32 } from "@shared/utils";
 
-const logger = new Logger("hpl_warp_native_cosmos");
+const logger = new Logger("hpl_mailbox");
 
 export async function queryMailboxStatus(
   cw_client: CosmosClient,
@@ -102,9 +103,37 @@ export async function queryMailboxNonce(
 
 export async function queryMailboxLatestDispathId(
   cw_client: CosmosClient,
-  mailbox_addr: string
+  mailbox_addr: string | undefined
 ) {
-  const msg = { mailbox: { latest_dispatch_id: {} } };
-  let res: JsonObject = await wasmQuery(cw_client, mailbox_addr, msg);
-  return res;
+  if (mailbox_addr !== undefined) {
+    const msg = { mailbox: { latest_dispatch_id: {} } };
+    let res: JsonObject = await wasmQuery(cw_client, mailbox_addr, msg);
+    return res;
+  }
+}
+
+export async function queryMailboxQuoteDispatch(
+  cw_client: CosmosClient,
+  mailbox_addr: string | undefined,
+  sender: string,
+  recipientAddr: string,
+  message: string
+): Promise<IndexedTx | undefined> {
+  if (mailbox_addr !== undefined) {
+    const msg = {
+      hook: {
+        quote_dispatch: {
+          sender: sender,
+          msg: {
+            dest_domain: 11820,
+            recipient_addr: addPad(recipientAddr),
+            msg_body: Buffer.from(message, "utf-8").toString("hex"),
+          },
+        },
+      },
+    };
+    logger.json(msg);
+    let res: IndexedTx = await wasmQuery(cw_client, mailbox_addr, msg);
+    return res;
+  }
 }

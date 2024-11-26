@@ -4,46 +4,35 @@ import colors from "colors";
 import { Command } from "commander";
 import { Logger } from "../shared/logger";
 import { EthClient } from "@shared/eth_client";
-import { getMailboxContract } from "../eth_contracts/mailbox";
-import {
-  deployhypERC20,
-  EthTransfer,
-  executeERC20_initialize,
-  executeERC20_setInterchainSecurityModule,
-  getHypERC20Contract,
-} from "../eth_contracts/erc20";
+
 import type { Contract } from "ethers";
 import { addPad, extractByte32AddrFromBech32 } from "@shared/utils";
-import { getBridge, getNetwork, type Config } from "@shared/config";
-import {
-  CosmosClient,
-  getCosmosClient,
-  wasmQuery,
-} from "@shared/cosmos_client";
+import { CosmosClient, getCosmosClient } from "@shared/cosmos_client";
 import {
   deployHypWarpNative,
   InstantiateHypWarpNative,
   setInterchainSecurityModule,
   setRoute,
   CwTransfer,
-  queryTokenType,
-  queryTokenMode,
-  queryMailbox,
-  queryHook,
-  queryIsm,
-  queryDomains,
-  queryRoute,
-  queryRoutes,
   setMailbox,
   setHook,
   queryStatus,
 } from "../cosmos_contracts/hpl_warp_native";
-import { getToken, type TokenList } from "@shared/token";
-import type { JsonObject } from "@cosmjs/cosmwasm-stargate";
 import {
-  queryMailboxRecipientIsm,
+  queryMailboxLatestDispathId,
   queryMailboxStatus,
 } from "../cosmos_contracts/hlp_mailbox";
+import { queryFeeHookStatus } from "../cosmos_contracts/hlp_hook_fee";
+import { queryAggregateHookStatus } from "../cosmos_contracts/hpl_hook_aggregate";
+import {
+  queryIGPOracleExchangeRateAndGasPrice,
+  queryIGPStatus,
+} from "../cosmos_contracts/hpl_igp";
+import { queryIGPOracleOracleExchangeRateAndGasPrice } from "../cosmos_contracts/hpl_igp_oracle";
+import { getNetwork, type NetworksConfig } from "@shared/config/network";
+import { getToken, type TokenList } from "@shared/config/token";
+import { getBridge, type BridgesConfig } from "@shared/config/bridge";
+import { HypERC20 } from "@eth_contracts/erc20";
 
 colors.enable();
 const logger = new Logger("test-warp-01");
@@ -65,16 +54,14 @@ export const testWarp01Cmd = new Command("test-warp-01")
   .action(async (mnemonic) => {
     const eth_client = new EthClient(CHAIN_A, mnemonic);
     const cw_client: CosmosClient = await getCosmosClient(CHAIN_B, mnemonic);
-    const stargaze: Config["networks"][number] = getNetwork(CHAIN_B);
-    const lazy: Config["networks"][number] = getNetwork(CHAIN_A);
-    const bridge: Config["bridges"][number] = getBridge(BRIDGE_ID);
+    const stargaze: NetworksConfig["networks"][number] = getNetwork(CHAIN_B);
+    const lazy: NetworksConfig["networks"][number] = getNetwork(CHAIN_A);
 
     logger.info("1. Deploying Token Warp Route on Lazy chain");
-    const {
-      HypERC20WithSigner: lazyWarpRouteContract,
-      hypErc20Addr: lazyWarpRouteAddr,
-    } = await init_lazy_side(eth_client);
-    logger.success(`Lazy Token Warp Route Addr[${lazyWarpRouteAddr}]`);
+    const lazyWarpRouteContract: Contract = await init_lazy_side(eth_client);
+    logger.success(
+      `Lazy Token Warp Route Addr[${lazyWarpRouteContract.address}]`
+    );
 
     logger.info("2. Deploying Token Warp Route on stargaze chain");
 
@@ -95,7 +82,7 @@ export const testWarp01Cmd = new Command("test-warp-01")
       cw_client,
       stargazeWarpRouteContract, // warp route contract
       lazy.domain, // destination domain
-      lazyWarpRouteAddr // destination lazy
+      lazyWarpRouteContract.address // destination lazy
     );
 
     // await queryMailboxRecipientIsm(
@@ -114,8 +101,8 @@ export const testWarp01Cmd = new Command("test-warp-01")
 
 async function init_stargaze_side(client: CosmosClient): Promise<string> {
   const token: TokenList["tokens"][number] = getToken(CHAIN_B);
-  const networkConfig: Config["networks"][number] = getNetwork(CHAIN_B);
-  const bridge: Config["bridges"][number] = getBridge(BRIDGE_ID);
+  const networkConfig: NetworksConfig["networks"][number] = getNetwork(CHAIN_B);
+  const bridge: BridgesConfig["bridges"][number] = getBridge(BRIDGE_ID);
 
   const codeId = await deployHypWarpNative(client, "hpl_warp_native");
 
@@ -125,7 +112,7 @@ async function init_stargaze_side(client: CosmosClient): Promise<string> {
     token: token.config,
     hrp: networkConfig.hrp,
     owner: client.signer.address,
-    mailbox: bridge.stargaze.mailbox_cosmos,
+    mailbox: bridge.stargaze.mailbox,
   };
 
   const contract_addr = await InstantiateHypWarpNative(client, codeId, initMsg);
@@ -133,39 +120,27 @@ async function init_stargaze_side(client: CosmosClient): Promise<string> {
   await setInterchainSecurityModule(
     client,
     contract_addr,
-    bridge.stargaze.staticMessageIdMultisigIsmFactory
+    bridge.stargaze.hpl_ism_multisig
   );
 
-  if (bridge.stargaze.mailbox_cosmos !== undefined) {
-    await setMailbox(client, contract_addr, bridge.stargaze.mailbox_cosmos);
+  if (bridge.stargaze.mailbox !== undefined) {
+    await setMailbox(client, contract_addr, bridge.stargaze.mailbox);
   }
 
   console.log(bridge.stargaze.staticAggregationHookFactory);
-  await setHook(
-    client,
-    contract_addr,
-    bridge.stargaze.staticAggregationHookFactory
-  );
+  await setHook(client, contract_addr, bridge.stargaze.hpl_hook_aggregate);
 
   return contract_addr;
 }
 
-async function init_lazy_side(
-  client: EthClient
-): Promise<{ HypERC20WithSigner: Contract; hypErc20Addr: string }> {
-  const bridge: Config["bridges"][number] = getBridge(BRIDGE_ID);
-  const mailbox_addr = bridge.lazy.mailbox;
-  const multi_ism_factory_addr = bridge.lazy.staticMessageIdMultisigIsmFactory;
-  const hook = bridge.lazy.staticAggregationHookFactory;
+async function init_lazy_side(client: EthClient): Promise<Contract> {
+  const bridge: BridgesConfig["bridges"][number] = getBridge(BRIDGE_ID);
+  const mailboxAddr = bridge.lazy.mailbox;
+  const multisigIsmFactoryAddr = bridge.lazy.staticMessageIdMultisigIsmFactory;
+  const hookfactoryAddr = bridge.lazy.staticAggregationHookFactory;
 
-  const hypErc20Addr = await deployhypERC20(client.signer, mailbox_addr);
-
-  await executeERC20_initialize(
-    client.signer,
-    hypErc20Addr,
-    hook,
-    multi_ism_factory_addr
-  );
+  const hypERC20: HypERC20 = await HypERC20.build(client.signer, mailboxAddr);
+  await hypERC20.initialize(hookfactoryAddr, multisigIsmFactoryAddr);
 
   // logger.info("Binding the contract to ism");
   // await executeERC20_setInterchainSecurityModule(
@@ -173,9 +148,9 @@ async function init_lazy_side(
   //   hypErc20Addr,
   //   multi_ism_factory_addr
   // );
-  const HypERC20 = getHypERC20Contract(client.signer, hypErc20Addr);
-  const HypERC20WithSigner = HypERC20.connect(client.signer);
-  return { HypERC20WithSigner, hypErc20Addr };
+  const HypERC20Inst = hypERC20.getContract();
+  const HypERC20WithSigner = HypERC20Inst.connect(client.signer);
+  return HypERC20WithSigner;
 }
 
 async function linkWarpRouteLazySide(
@@ -214,10 +189,28 @@ async function testTransferFromCwToEth(
   cw_warp_route_addr: string,
   destination_domain: number
 ) {
-  const bridge: Config["bridges"][number] = getBridge(BRIDGE_ID);
-  await queryMailboxStatus(cw_client, bridge.stargaze.mailbox_cosmos);
-
+  const bridge: BridgesConfig["bridges"][number] = getBridge(BRIDGE_ID);
+  await queryMailboxStatus(cw_client, bridge.stargaze.mailbox);
   await queryStatus(cw_client, cw_warp_route_addr);
+  await queryAggregateHookStatus(cw_client, bridge.stargaze.hpl_hook_aggregate);
+  await queryFeeHookStatus(cw_client, bridge.stargaze.hpl_hook_fee);
+  await queryIGPStatus(cw_client, bridge.stargaze.hpl_igp);
+
+  logger.json(
+    await queryIGPOracleOracleExchangeRateAndGasPrice(
+      cw_client,
+      bridge.stargaze.hpl_igp_oracle,
+      destination_domain
+    )
+  );
+
+  logger.json(
+    await queryIGPOracleExchangeRateAndGasPrice(
+      cw_client,
+      bridge.stargaze.hpl_igp,
+      destination_domain
+    )
+  );
 
   await CwTransfer(
     cw_client,
@@ -226,14 +219,23 @@ async function testTransferFromCwToEth(
     1000,
     1000
   );
+
+  logger.info(
+    await queryMailboxLatestDispathId(cw_client, bridge.stargaze.mailbox)
+  );
 }
 
-async function testTransferFromEthToCw(
-  hypERC20ContractWithSigner: Contract, // address of warp route
-  destination_domain: number
-) {
-  await EthTransfer(hypERC20ContractWithSigner, destination_domain, 1000, 50);
-}
+// async function testTransferFromEthToCw(
+//   hypERC20ContractWithSigner: Contract, // address of warp route
+//   destination_domain: number
+// ) {
+//   await hypERC20ContractWithSigner.EthTransfer(
+//     hypERC20ContractWithSigner,
+//     destination_domain,
+//     1000,
+//     50
+//   );
+// }
 
 // async function transferhypERC20(
 //   hypERC20ContractWithSigner: Contract,

@@ -1,44 +1,3 @@
-networks:
-  - id: "stargaze"
-    hrp: "stars"
-    network: "stargaze"
-    protocol: "cosmos"
-    domain: 7865 # stargaze -> ascii / decimal -> sum
-    endpoint: "http://localhost:21657"
-    gas:
-      price: 1000
-      denom: "ustars"
-    nativeCurrency:
-      name: "stars"
-      symbol: "stars"
-      decimals: 6
-  - id: "lazy"
-    hrp: ""
-    network: "test"
-    protocol: "ethereum"
-    domain: 11820
-    endpoint: "http://localhost:8545"
-    gas:
-      price: 1000
-      denom: "aart"
-    nativeCurrency:
-      name: "art"
-      symbol: "ART"
-      decimals: 18
-  - id: "forma"
-    hrp: ""
-    protocol: "ethereum"
-    domain: 1337
-    endpoint: "http://localhost:8546"
-    gas:
-      price: 1000
-      denom: "utia"
-    network: "test"
-    nativeCurrency:
-      name: "tia"
-      symbol: "TIA"
-      decimals: 18
-
 bridges:
   - id: "lazy_stargaze"
     lazy:
@@ -57,14 +16,18 @@ bridges:
       testRecipient: "0xC14d13977d92ce0d6BeEFfDD6EDA179d3F225380"
       validatorAnnounce: "0x0715Ceaeeb3276516b3ae9061BE74F7cdc433780"
     stargaze:
-      staticAggregationHookFactory: "stars1vhndln95yd7rngslzvf6sax6axcshkxqpmpr886ntelh28p9ghuqrjwdrx"
-      staticMessageIdMultisigIsmFactory: "stars1436kxs0w2es6xlqpp9rd35e3d0cjnw4sv8j3a7483sgks29jqwgsqh7env"
-      interchainGasPaymaster: "0x581ce22ef1ad28ffa1558fb6fa6e53904eef5e96efb7e7c96209a75e5d565c36"
-      mailbox: "0x9e28beafa966b2407bffb0d48651e94972a56e69f3c0897d9e8facbdaeb98386"
-      mailbox_cosmos: stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja
-      merkleTreeHook: "0xbf5c82d76d2d94d385331d28fd7eb68e3523ee8de846a8831ed95df7190bdb59"
-      validatorAnnounce: "0xf04a313a7349b120c55c99788f12f712176bb3e5926d012d0ea72fa2bbb85051"
-      validator_announce_cosmos: stars17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsh7yame
+      hpl_hook_aggregate: stars1gurgpv8savnfw66lckwzn4zk7fp394lpe667dhu7aw48u40lj6jsvqeul5
+      hpl_hook_fee: stars1999u8suptza3rtxwk7lspve02m406xe7l622erg3np3aq05gawxs3srum2
+      hpl_hook_merkle: stars1ds5m6wwuu0cr35kmhxmq3up2w0tamsplnna3wm0dkxnyu5x8k03sfug0tv
+      hpl_igp: stars14ejqjyq8um4p3xfqj74yld5waqljf88fz25yxnma0cngspxe3les0u7wcf
+      hpl_igp_oracle: stars1y8u8dnn2lw8uhpmt2f3gjj7s9hxazxz8t6c4tv6smfrg9dwwsvqs97awhs
+      hpl_ism_multisig: stars1436kxs0w2es6xlqpp9rd35e3d0cjnw4sv8j3a7483sgks29jqwgsqh7env
+      interchain_gas_paymaster_hex: "0xae64091007e6ea18992097aa4fb68ee83f249ce912a8434f7d7e268804d98ff3"
+      mailbox: stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja
+      mailbox_hex: "0x9e28beafa966b2407bffb0d48651e94972a56e69f3c0897d9e8facbdaeb98386"
+      merkle_tree_hook_hex: "0x6c29bd39dce3f038d2dbb9b608f02a73d7ddc03f9cfb176dedb1a64e50c7b3e3"
+      validator_announce: stars17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsh7yame
+      validator_announce_hex: "0xf04a313a7349b120c55c99788f12f712176bb3e5926d012d0ea72fa2bbb85051"
   - id: "lazy_forma"
     lazy:
       domainRoutingIsmFactory: "0xE313eB739702754821cE06957A38738EBF51c7dC"

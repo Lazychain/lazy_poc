@@ -38,7 +38,7 @@ export async function InstantiateHypWarpNative(
 export async function setInterchainSecurityModule(
   client: CosmosClient,
   contractAddr: string,
-  ismAddr: string
+  ismAddr: string | undefined
 ) {
   // register ism address in the warp contract
   const msg = {
@@ -86,7 +86,7 @@ export async function setMailbox(
 export async function setHook(
   client: CosmosClient,
   contractAddr: string,
-  hookAddr: string
+  hookAddr: string | undefined
 ) {
   // register ism address in the warp contract
   const msg = {

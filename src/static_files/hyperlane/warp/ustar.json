@@ -6,7 +6,7 @@
   "owner": "<signer>",
   "config": {
     "collateral": {
-      "denom": "ustar"
+      "denom": "ustars"
     }
   }
 }

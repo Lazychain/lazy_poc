@@ -1,0 +1,5 @@
+contracts:
+  - id: "lazy"
+    name: "lottery"
+    abi: "lottery.abi.json"
+    bin: "lottery.bin"

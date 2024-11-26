@@ -69,7 +69,10 @@ export async function ethWalletFromMnemonic(
   }
 }
 
-export async function cosmosWalletFromMnemonic(mnemonic: string) {
+export async function cosmosWalletFromMnemonic(
+  mnemonic: string,
+  prefix: string = "stars"
+) {
   if (mnemonic == "") {
     const strength = 256; // 256 bits, 24 words; default is 128 bits, 12 words
     mnemonic = generateMnemonic(wordlist, strength);
@@ -81,7 +84,7 @@ export async function cosmosWalletFromMnemonic(mnemonic: string) {
     const stargaze_wallet = await DirectSecp256k1HdWallet.fromMnemonic(
       mnemonic,
       {
-        prefix: "stars",
+        prefix: prefix,
       }
     );
     // BIP32

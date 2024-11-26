@@ -30,6 +30,21 @@ def init(plan, args = {}):
 
     cw_config_file = lazy_stargaze_render_cw_config(plan, args["DEV_MNEMONIC"])
 
+    custom_mailbox = plan.upload_files(
+        src = "{0}/hpl_mailbox.wasm".format(INIT_PATH),
+        name = "hyperlane_init_hpl_mailbox",
+    )
+
+    custom_hook_aggregate = plan.upload_files(
+        src = "{0}/hpl_hook_aggregate.wasm".format(INIT_PATH),
+        name = "hyperlane_init_hpl_hook_aggregate",
+    )
+
+    custom_igp = plan.upload_files(
+        src = "{0}/hpl_igp.wasm".format(INIT_PATH),
+        name = "hyperlane_init_hpl_igp",
+    )
+
     entry_point = plan.upload_files(
         src = "{0}/entry-point.sh".format(INIT_PATH),
         name = "hyperlane_init_entrypoint",
@@ -44,6 +59,9 @@ def init(plan, args = {}):
             "/root/.hyperlane/chains/lazy/": lazy_chain_cfg,
             "/app/configs/": core_config,
             "/app/run/": entry_point,
+            # "/app/mailbox/": custom_mailbox,
+            # "/app/aggregate/": custom_hook_aggregate,
+            "/app/igp/": custom_igp,
         },
         cmd = ["/bin/sh", "-c", "sleep infinity"],
     )
@@ -56,7 +74,7 @@ def init(plan, args = {}):
         field = "code",
         assertion = "==",
         target_value = 0,
-        timeout = "5m",
+        timeout = "10m",
         description = "Deploying and Configure Lazy (ETH) and Cosmos (Stargaze) Hyperlane contracts",
     )
 

@@ -68,4 +68,4 @@ sed -i "s/swagger = false/swagger = true/g" $WORKDIR/config/app.toml
 sed -i "s/enabled-unsafe-cors = false/enabled-unsafe-cors = true/g" $WORKDIR/config/app.toml
 
 # Start the stake
-starsd start --pruning=nothing
+starsd start --pruning=nothing --log_level "trace"

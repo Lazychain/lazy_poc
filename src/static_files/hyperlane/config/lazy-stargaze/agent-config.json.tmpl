@@ -55,7 +55,7 @@
         "symbol": "STAR"
       },
       "gasPrice": {
-        "amount": "1000",
+        "amount": "0",
         "denom": "ustars"
       },
       "contractAddressBytes": 32,
@@ -73,10 +73,10 @@
           "http": "http://stargaze-local:9090"
         }
       ],
-      "mailbox": "{{.chains.stargaze.mailbox}}",
-      "validatorAnnounce": "{{.chains.stargaze.validatorAnnounce}}",
-      "interchainGasPaymaster": "{{.chains.stargaze.interchainGasPaymaster}}",
-      "merkleTreeHook": "{{.chains.stargaze.merkleTreeHook}}"
+      "mailbox": "{{.chains.stargaze.mailbox_hex}}",
+      "validatorAnnounce": "{{.chains.stargaze.validator_announce_hex}}",
+      "interchainGasPaymaster": "{{.chains.stargaze.interchain_gas_paymaster_hex}}",
+      "merkleTreeHook": "{{.chains.stargaze.merkle_tree_hook_hex}}"
     }
   }
 }

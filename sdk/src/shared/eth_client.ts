@@ -1,4 +1,4 @@
-import { getNetwork, type Config } from "./config";
+import { getNetwork, type NetworksConfig } from "./config/network";
 import { providers, Wallet } from "ethers";
 import { Logger } from "./logger";
 
@@ -7,10 +7,11 @@ const logger = new Logger("eth-client");
 export class EthClient {
   provider: providers.JsonRpcProvider;
   signer: Wallet;
-  networkConfig: Config["networks"][number];
+  networkConfig: NetworksConfig["networks"][number];
 
   constructor(networkId: string, mnemonic: string) {
-    const networkConfig: Config["networks"][number] = getNetwork(networkId);
+    const networkConfig: NetworksConfig["networks"][number] =
+      getNetwork(networkId);
     const provider: providers.JsonRpcProvider = new providers.JsonRpcProvider(
       networkConfig.endpoint
     );
