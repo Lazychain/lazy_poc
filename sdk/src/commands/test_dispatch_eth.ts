@@ -3,14 +3,8 @@ import colors from "colors";
 import { Command } from "commander";
 import { Logger } from "../shared/logger";
 import { EthClient } from "@shared/eth_client";
-import {
-  executeMailbox_dispatch,
-  getMailboxContract,
-} from "../eth_contracts/mailbox";
-import {
-  deployReceipt,
-  executeReceipt_setInterchainSecurityModule,
-} from "../eth_contracts/recipient";
+import { HypEthMailbox } from "../contracts/eth_contracts/mailbox";
+import { TestEthRecipient } from "../contracts/eth_contracts/recipient";
 
 colors.enable();
 const logger = new Logger("test-dispatch");
@@ -42,7 +36,12 @@ export const testDispatchEthCmd = new Command("test-dispatch-eth")
     //const mailbox = getMailboxContract(HYP_MAILBOX);
     //await executeMailbox_setDefaultIsm(signer, mailboxAddr, ismAddr);
 
-    const mailbox = getMailboxContract(client.signer, HYP_ETH_MAILBOX);
+    // We are going to use an already deployed mailbox
+    const mailbox = await HypEthMailbox.buildFromAlreadyDeployed(
+      client.signer,
+      HYP_ETH_MAILBOX,
+      client.networkConfig.domain
+    );
 
     // Some validations
 
@@ -51,15 +50,14 @@ export const testDispatchEthCmd = new Command("test-dispatch-eth")
     // await queryMailbox_localDomain(mailbox);
     // await queryMailbox_recipientIsm(mailbox, HYP_MULTSIG_ISM_FACTORY);
 
-    const recipientAddr = await deployReceipt(client.signer);
-    await executeReceipt_setInterchainSecurityModule(
-      client.signer,
-      recipientAddr,
-      HYP_ETH_MULTSIG_ISM_FACTORY
+    const testRecipient: TestEthRecipient = await TestEthRecipient.build(
+      client.signer
     );
 
-    await executeMailbox_dispatch(
-      mailbox,
+    await testRecipient.setInterchainSecurityModule(
+      HYP_ETH_MULTSIG_ISM_FACTORY
+    );
+    await mailbox.dispatch(
       COSMOS_CHAIN_DOMAIN,
       COSMOS_RECEIPT_ADDRESS,
       TEST_MSG_HEX
@@ -68,5 +66,5 @@ export const testDispatchEthCmd = new Command("test-dispatch-eth")
     logger.success("Receipt sent");
     logger.log(`ism addr[${HYP_ETH_MULTSIG_ISM_FACTORY}]`);
     logger.log(`mailbox addr[${HYP_ETH_MAILBOX}]`);
-    logger.notice(`smart contract receipt addr[${recipientAddr}]`);
+    logger.notice(`smart contract receipt addr[${testRecipient.addr()}]`);
   });

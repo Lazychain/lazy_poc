@@ -3,10 +3,9 @@ import colors from "colors";
 import { Command } from "commander";
 import { Logger } from "../shared/logger";
 import { EthClient } from "@shared/eth_client";
-import { getMailboxContract } from "../eth_contracts/mailbox";
-import type { Contract } from "ethers";
 import { extractByte32AddrFromBech32 } from "@shared/utils";
-import { deployhypERC721, getHypERC721Contract } from "../eth_contracts/erc721";
+import { HypEthMailbox } from "../contracts/eth_contracts/mailbox";
+import { HypERC721 } from "../contracts/eth_contracts/erc721";
 
 colors.enable();
 const logger = new Logger("test-nft");
@@ -28,44 +27,23 @@ export const testNftCmd = new Command("test-nft")
   .action(async (networkId, mnemonic) => {
     const client = new EthClient(networkId, mnemonic);
 
-    const mailbox = getMailboxContract(client.signer, HYP_MAILBOX);
+    const mailbox = await HypEthMailbox.buildFromAlreadyDeployed(
+      client.signer,
+      HYP_MAILBOX,
+      client.networkConfig.domain
+    );
 
-    const hypERC721Addr = await deployhypERC721(client.signer, mailbox.address);
-    const HypERC721 = getHypERC721Contract(client.signer, hypERC721Addr);
-    const HypERC721WithSigner = HypERC721.connect(client.signer);
+    const hypERC721: HypERC721 = await HypERC721.build(
+      client.signer,
+      mailbox.addr()
+    );
 
-    await linkhypERC721(HypERC721WithSigner, COSMOS_CHAIN_DOMAIN, ROUTE);
+    hypERC721.enrollRemoteRouter(
+      COSMOS_CHAIN_DOMAIN,
+      `0x${extractByte32AddrFromBech32(ROUTE)}`
+    );
 
-    await transferhypERC721(HypERC721WithSigner, COSMOS_CHAIN_DOMAIN, HYP_CW20);
+    hypERC721.transfer(COSMOS_CHAIN_DOMAIN);
 
-    console.log(`result [${hypERC721Addr}]`);
+    console.log(`result [${hypERC721.addr()}]`);
   });
-
-async function linkhypERC721(
-  hypERC721ContractWithSigner: Contract,
-  domain: number,
-  route: string
-) {
-  // link
-  let txr = await hypERC721ContractWithSigner.enrollRemoteRouter(
-    domain,
-    `0x${extractByte32AddrFromBech32(route)}`
-  );
-  await txr.wait();
-  logger.log(`Transaction hash: ${JSON.stringify(txr)}`);
-}
-
-async function transferhypERC721(
-  hypERC721ContractWithSigner: Contract,
-  domain: number,
-  hypCW20Addr: string
-) {
-  // Transfer ERC721 to cosmos blockchain
-  let txr = await hypERC721ContractWithSigner.transferRemote(
-    domain,
-    `0x${extractByte32AddrFromBech32(hypCW20Addr)}`,
-    1_000_000n
-  );
-  await txr.wait();
-  logger.log(`Transaction hash: ${JSON.stringify(txr)}`);
-}

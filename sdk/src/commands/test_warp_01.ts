@@ -5,34 +5,18 @@ import { Command } from "commander";
 import { Logger } from "../shared/logger";
 import { EthClient } from "@shared/eth_client";
 
-import type { Contract } from "ethers";
-import { addPad, extractByte32AddrFromBech32 } from "@shared/utils";
 import { CosmosClient, getCosmosClient } from "@shared/cosmos_client";
-import {
-  deployHypWarpNative,
-  InstantiateHypWarpNative,
-  setInterchainSecurityModule,
-  setRoute,
-  CwTransfer,
-  setMailbox,
-  setHook,
-  queryStatus,
-} from "../cosmos_contracts/hpl_warp_native";
-import {
-  queryMailboxLatestDispathId,
-  queryMailboxStatus,
-} from "../cosmos_contracts/hlp_mailbox";
-import { queryFeeHookStatus } from "../cosmos_contracts/hlp_hook_fee";
-import { queryAggregateHookStatus } from "../cosmos_contracts/hpl_hook_aggregate";
-import {
-  queryIGPOracleExchangeRateAndGasPrice,
-  queryIGPStatus,
-} from "../cosmos_contracts/hpl_igp";
-import { queryIGPOracleOracleExchangeRateAndGasPrice } from "../cosmos_contracts/hpl_igp_oracle";
 import { getNetwork, type NetworksConfig } from "@shared/config/network";
 import { getToken, type TokenList } from "@shared/config/token";
 import { getBridge, type BridgesConfig } from "@shared/config/bridge";
-import { HypERC20 } from "@eth_contracts/erc20";
+import { HypERC20 } from "../contracts/eth_contracts/erc20";
+
+import { queryIGPOracleOracleExchangeRateAndGasPrice } from "@cw_contracts/hpl_igp_oracle";
+import { HypCosmosMailbox } from "@cw_contracts/hlp_mailbox";
+import { HypHookFees } from "@cw_contracts/hlp_hook_fee";
+import { HypHookAggregate } from "@cw_contracts/hpl_hook_aggregate";
+import { HypIgp } from "@cw_contracts/hpl_igp";
+import { HypWarpNative } from "@cw_contracts/hpl_warp_native";
 
 colors.enable();
 const logger = new Logger("test-warp-01");
@@ -58,31 +42,28 @@ export const testWarp01Cmd = new Command("test-warp-01")
     const lazy: NetworksConfig["networks"][number] = getNetwork(CHAIN_A);
 
     logger.info("1. Deploying Token Warp Route on Lazy chain");
-    const lazyWarpRouteContract: Contract = await init_lazy_side(eth_client);
-    logger.success(
-      `Lazy Token Warp Route Addr[${lazyWarpRouteContract.address}]`
-    );
+    const lazyWarpRoute: HypERC20 = await init_lazy_side(eth_client);
+    logger.success(`Lazy Token Warp Route Addr[${lazyWarpRoute.addr()}]`);
 
     logger.info("2. Deploying Token Warp Route on stargaze chain");
 
-    const stargazeWarpRouteContract = await init_stargaze_side(cw_client);
+    const stargazeWarpRoute: HypWarpNative = await init_stargaze_side(
+      cw_client
+    );
     logger.success(
-      `Stargaze Token Warp Route Addr[${stargazeWarpRouteContract}]`
+      `Stargaze Token Warp Route Addr[${stargazeWarpRoute.addr()}]`
     );
 
     logger.info("3. Register Stargaze destination on lazy warp route.");
-    await linkWarpRouteLazySide(
-      lazyWarpRouteContract, // warp route contract
+    await stargazeWarpRoute.enrollRemoteRouter(
       stargaze.domain, // destination domain
-      stargazeWarpRouteContract // destination stargaze
+      stargazeWarpRoute.addr() // destination stargaze
     );
 
     logger.info("4. Register lazy destination on stargaze route.");
-    await linkWarpRouteStargazeSide(
-      cw_client,
-      stargazeWarpRouteContract, // warp route contract
+    await stargazeWarpRoute.setRoute(
       lazy.domain, // destination domain
-      lazyWarpRouteContract.address // destination lazy
+      lazyWarpRoute.addr() // destination lazy
     );
 
     // await queryMailboxRecipientIsm(
@@ -92,19 +73,15 @@ export const testWarp01Cmd = new Command("test-warp-01")
     // );
 
     logger.info("5. Test transfer from Stargaze to Lazy");
-    await testTransferFromCwToEth(
-      cw_client,
-      stargazeWarpRouteContract,
-      lazy.domain
-    );
+    await testTransferFromCwToEth(cw_client, stargazeWarpRoute, lazy.domain);
   });
 
-async function init_stargaze_side(client: CosmosClient): Promise<string> {
+async function init_stargaze_side(
+  client: CosmosClient
+): Promise<HypWarpNative> {
   const token: TokenList["tokens"][number] = getToken(CHAIN_B);
   const networkConfig: NetworksConfig["networks"][number] = getNetwork(CHAIN_B);
   const bridge: BridgesConfig["bridges"][number] = getBridge(BRIDGE_ID);
-
-  const codeId = await deployHypWarpNative(client, "hpl_warp_native");
 
   // https://github.com/many-things/cw-hyperlane/blob/main/packages/interface/src/warp/native.rs#L46-L53
   // token: TokenModeMsg<NativeModeBriged, NativeModeCollateral>,
@@ -115,25 +92,21 @@ async function init_stargaze_side(client: CosmosClient): Promise<string> {
     mailbox: bridge.stargaze.mailbox,
   };
 
-  const contract_addr = await InstantiateHypWarpNative(client, codeId, initMsg);
+  const nativeWarp: HypWarpNative = await HypWarpNative.build(client, initMsg);
 
-  await setInterchainSecurityModule(
-    client,
-    contract_addr,
-    bridge.stargaze.hpl_ism_multisig
+  await nativeWarp.setInterchainSecurityModule(
+    bridge.stargaze.hpl_ism_multisig!
   );
 
-  if (bridge.stargaze.mailbox !== undefined) {
-    await setMailbox(client, contract_addr, bridge.stargaze.mailbox);
-  }
+  await nativeWarp.setMailbox(bridge.stargaze.mailbox!);
 
   console.log(bridge.stargaze.staticAggregationHookFactory);
-  await setHook(client, contract_addr, bridge.stargaze.hpl_hook_aggregate);
+  await nativeWarp.setHook(bridge.stargaze.hpl_hook_aggregate!);
 
-  return contract_addr;
+  return nativeWarp;
 }
 
-async function init_lazy_side(client: EthClient): Promise<Contract> {
+async function init_lazy_side(client: EthClient): Promise<HypERC20> {
   const bridge: BridgesConfig["bridges"][number] = getBridge(BRIDGE_ID);
   const mailboxAddr = bridge.lazy.mailbox;
   const multisigIsmFactoryAddr = bridge.lazy.staticMessageIdMultisigIsmFactory;
@@ -148,53 +121,34 @@ async function init_lazy_side(client: EthClient): Promise<Contract> {
   //   hypErc20Addr,
   //   multi_ism_factory_addr
   // );
-  const HypERC20Inst = hypERC20.getContract();
-  const HypERC20WithSigner = HypERC20Inst.connect(client.signer);
-  return HypERC20WithSigner;
-}
-
-async function linkWarpRouteLazySide(
-  hypERC20ContractWithSigner: Contract, // address of warp route
-  destination_domain: number, // destination domain to set
-  destination_route: string // destination address to set
-) {
-  // link
-  const router = `0x${addPad(extractByte32AddrFromBech32(destination_route))}`;
-  logger.log(
-    `enrollRemoteRouter: destination_domain: ${destination_domain} destination_route: ${router}`
-  );
-  let txr = await hypERC20ContractWithSigner.enrollRemoteRouter(
-    destination_domain,
-    router
-  );
-  await txr.wait();
-}
-
-async function linkWarpRouteStargazeSide(
-  client: CosmosClient,
-  contract_addr: string, // address of warp route
-  destination_domain: number, // destination domain to set
-  destination_route: string // destination address to set
-) {
-  const res = await setRoute(
-    client,
-    contract_addr,
-    destination_domain,
-    destination_route
-  );
+  return hypERC20;
 }
 
 async function testTransferFromCwToEth(
   cw_client: CosmosClient,
-  cw_warp_route_addr: string,
+  cw_warp_route: HypWarpNative,
   destination_domain: number
 ) {
   const bridge: BridgesConfig["bridges"][number] = getBridge(BRIDGE_ID);
-  await queryMailboxStatus(cw_client, bridge.stargaze.mailbox);
-  await queryStatus(cw_client, cw_warp_route_addr);
-  await queryAggregateHookStatus(cw_client, bridge.stargaze.hpl_hook_aggregate);
-  await queryFeeHookStatus(cw_client, bridge.stargaze.hpl_hook_fee);
-  await queryIGPStatus(cw_client, bridge.stargaze.hpl_igp);
+  const mailbox: HypCosmosMailbox = new HypCosmosMailbox(
+    cw_client,
+    bridge.stargaze.mailbox
+  );
+  const hookFees: HypHookFees = new HypHookFees(
+    cw_client,
+    bridge.stargaze.hpl_hook_fee!
+  );
+  const hookAggregate: HypHookAggregate = new HypHookAggregate(
+    cw_client,
+    bridge.stargaze.hpl_hook_fee!
+  );
+  const igp: HypIgp = new HypIgp(cw_client, bridge.stargaze.hpl_igp!);
+
+  await mailbox.status();
+  await cw_warp_route.status();
+  await hookAggregate.status();
+  await hookFees.status();
+  await igp.status();
 
   logger.json(
     await queryIGPOracleOracleExchangeRateAndGasPrice(
@@ -204,25 +158,11 @@ async function testTransferFromCwToEth(
     )
   );
 
-  logger.json(
-    await queryIGPOracleExchangeRateAndGasPrice(
-      cw_client,
-      bridge.stargaze.hpl_igp,
-      destination_domain
-    )
-  );
+  logger.json(await igp.oracleExchangeRateAndGasPrice(destination_domain));
 
-  await CwTransfer(
-    cw_client,
-    cw_warp_route_addr,
-    destination_domain,
-    1000,
-    1000
-  );
+  await cw_warp_route.transfer(destination_domain, 1000, 1000);
 
-  logger.info(
-    await queryMailboxLatestDispathId(cw_client, bridge.stargaze.mailbox)
-  );
+  logger.info(await mailbox.latestDispathId());
 }
 
 // async function testTransferFromEthToCw(

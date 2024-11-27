@@ -1,5 +1,5 @@
 import { CosmosClient, wasmQuery } from "@shared/cosmos_client";
-import { Logger } from "../shared/logger";
+import { Logger } from "../../shared/logger";
 import type { JsonObject } from "@cosmjs/cosmwasm-stargate";
 
 const logger = new Logger("hpl_igp_oracle");

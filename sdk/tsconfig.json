@@ -26,7 +26,8 @@
     "paths": {
       "@shared/*": ["./src/shared/*"],
       "@commands/*": ["./src/commands/*"],
-      "@eth_contracts/*": ["./src/eth_contracts/*"]
+      "@eth_contracts/*": ["./src/contracts/eth_contracts/*"],
+      "@cw_contracts/*": ["./src/contracts/cosmos_contracts/*"]
     }
   },
   "include": ["src/**/*"],

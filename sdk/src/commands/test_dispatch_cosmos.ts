@@ -2,28 +2,21 @@ import colors from "colors";
 
 import { Command } from "commander";
 import { Logger } from "../shared/logger";
-import { coin, coins } from "@cosmjs/stargate";
+import { coin } from "@cosmjs/stargate";
 import {
   executeCosmosContract,
   getCosmosClient,
-  wasmQuery,
   type CosmosClient,
 } from "@shared/cosmos_client";
-import { addPad, extractByte32AddrFromBech32 } from "@shared/utils";
-import type { IndexedTx, JsonObject } from "@cosmjs/cosmwasm-stargate";
-import { getBridge, getNetwork, type Config } from "@shared/config";
-import {
-  queryMailboxDefaultHook,
-  queryMailboxQuoteDispatch,
-  queryMailboxStatus,
-} from "../cosmos_contracts/hlp_mailbox";
-import { queryStatus } from "../cosmos_contracts/hpl_warp_native";
-import { queryAggregateHookStatus } from "../cosmos_contracts/hpl_hook_aggregate";
-import {
-  queryFeeHookQuoteDispatch,
-  queryFeeHookStatus,
-} from "../cosmos_contracts/hlp_hook_fee";
-import { queryIGPStatus } from "../cosmos_contracts/hpl_igp";
+import { addPad } from "@shared/utils";
+import type { IndexedTx } from "@cosmjs/cosmwasm-stargate";
+
+import { getNetwork, type NetworksConfig } from "@shared/config/network";
+import { getBridge, type BridgesConfig } from "@shared/config/bridge";
+import { HypCosmosMailbox } from "@cw_contracts/hlp_mailbox";
+import { HypHookFees } from "@cw_contracts/hlp_hook_fee";
+import { HypHookAggregate } from "@cw_contracts/hpl_hook_aggregate";
+import { HypIgp } from "@cw_contracts/hpl_igp";
 
 colors.enable();
 const logger = new Logger("test-dispatch-cosmos");
@@ -48,9 +41,9 @@ export const testDispatchCosmosCmd = new Command("test-dispatch-cosmos")
     console.log(`${mnemonic}`);
 
     const cw_client: CosmosClient = await getCosmosClient(CHAIN_B, mnemonic);
-    const stargaze: Config["networks"][number] = getNetwork(CHAIN_B);
-    const lazy: Config["networks"][number] = getNetwork(CHAIN_A);
-    const bridge: Config["bridges"][number] = getBridge(BRIDGE_ID);
+    const stargaze: NetworksConfig["networks"][number] = getNetwork(CHAIN_B);
+    const lazy: NetworksConfig["networks"][number] = getNetwork(CHAIN_A);
+    const bridge: BridgesConfig["bridges"][number] = getBridge(BRIDGE_ID);
 
     // should this be on aart or ustars?
     //const funds = coins(10000000, client.network.gas.denom);
@@ -63,21 +56,31 @@ export const testDispatchCosmosCmd = new Command("test-dispatch-cosmos")
     console.log(`destDomain[${ETH_CHAIN_DOMAIN}]`);
     console.log(`mailbox[${bridge.stargaze.mailbox}]`);
 
-    await queryMailboxStatus(cw_client, bridge.stargaze.mailbox);
-    await queryAggregateHookStatus(
+    const mailbox: HypCosmosMailbox = new HypCosmosMailbox(
       cw_client,
-      bridge.stargaze.hpl_hook_aggregate
+      bridge.stargaze.mailbox
     );
-    await queryFeeHookStatus(cw_client, bridge.stargaze.hpl_hook_fee);
-    await queryIGPStatus(cw_client, bridge.stargaze.hpl_igp);
+    const hookFees: HypHookFees = new HypHookFees(
+      cw_client,
+      bridge.stargaze.hpl_hook_fee!
+    );
+    const hookAggregate: HypHookAggregate = new HypHookAggregate(
+      cw_client,
+      bridge.stargaze.hpl_hook_aggregate!
+    );
+
+    const igp: HypIgp = new HypIgp(cw_client, bridge.stargaze.hpl_igp!);
+    await mailbox.status();
+    await hookAggregate.status();
+    await hookFees.status();
+    await igp.status();
 
     logger.json(
-      await queryMailboxQuoteDispatch(
-        cw_client,
-        bridge.stargaze.mailbox,
+      await mailbox.quoteDispatch(
         cw_client.signer.address,
         recipientAddr,
-        TEST_MSG
+        TEST_MSG,
+        ETH_CHAIN_DOMAIN
       )
     );
 

@@ -6,7 +6,7 @@ import colors from "colors";
 import { Command } from "commander";
 import { Logger } from "../shared/logger";
 import { EthClient } from "@shared/eth_client";
-import { deployDemo } from "@eth_contracts/demo";
+import { Demo } from "../contracts/eth_contracts/demo";
 
 colors.enable();
 const logger = new Logger("compile");
@@ -35,7 +35,8 @@ contractCmd
     logger.info(`Deploying on ${networkId}`);
     const client = new EthClient(networkId, mnemonic);
     const { abi, bytecode } = await load();
-    await deployDemo(client.signer, abi, bytecode);
+    const demo: Demo = await Demo.build(client.signer, abi, bytecode);
+    logger.info(`Demo contract addr [${demo.addr()}]`);
   });
 
 function compile(sourceCode: string, contractName: string) {

@@ -1,5 +1,5 @@
 import { CosmosClient, wasmQuery } from "@shared/cosmos_client";
-import { Logger } from "../shared/logger";
+import { Logger } from "../../shared/logger";
 import type { JsonObject } from "@cosmjs/cosmwasm-stargate";
 import { queryAggregateHookHooks } from "./hpl_hook_aggregate";
 
